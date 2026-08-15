@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Catálogos Multiuso — Firebase</title>
+    <title>Gestor de Património e Catálogos — Firebase</title>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -36,7 +36,7 @@
         }
 
         .container {
-            max-width: 1280px;
+            max-width: 1320px;
             margin: 0 auto;
         }
 
@@ -96,6 +96,9 @@
         .btn-success { background-color: var(--accent-green); color: white; }
         .btn-success:hover { background-color: #059669; }
 
+        .btn-analytics { background-color: #8b5cf6; color: white; }
+        .btn-analytics:hover { background-color: #7c3aed; }
+
         .btn-outline { background-color: transparent; border-color: var(--border); color: var(--text-main); }
         .btn-outline:hover { background-color: #f1f5f9; }
 
@@ -108,9 +111,8 @@
             margin-bottom: 24px;
             border: 1px solid var(--border);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .preset-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -164,7 +166,7 @@
         /* Content Layout */
         .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
             gap: 20px;
         }
 
@@ -186,6 +188,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .card-img {
@@ -195,12 +198,21 @@
         }
 
         .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
-        .card-category { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 4px; }
+        .card-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .card-category { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+        
+        .badge-liq { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+        .liq-alta { background: #d1fae5; color: #065f46; }
+        .liq-media { background: #fef3c7; color: #92400e; }
+        .liq-baixa { background: #fee2e2; color: #991b1b; }
+
         .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
         .card-details { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; flex: 1; }
         .card-details p { margin-bottom: 4px; display: flex; justify-content: space-between; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
-        .card-price { font-size: 1.1rem; font-weight: 700; color: var(--accent-green); }
+        .price-container { display: flex; flex-direction: column; }
+        .card-price { font-size: 1.15rem; font-weight: 700; color: var(--accent-green); }
+        .card-unit-price { font-size: 0.75rem; color: var(--text-muted); }
         .card-actions { display: flex; gap: 6px; }
 
         .btn-icon {
@@ -234,10 +246,12 @@
         .modal {
             background: var(--card-bg);
             border-radius: var(--radius);
-            width: 90%; max-width: 600px; max-height: 90vh;
+            width: 90%; max-width: 650px; max-height: 90vh;
             overflow-y: auto;
             padding: 24px;
         }
+
+        .modal-large { max-width: 850px; }
 
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
         .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
@@ -245,6 +259,7 @@
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
         .attributes-section { background: var(--bg-main); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
         .attr-row { display: flex; gap: 10px; margin-bottom: 8px; }
         .attr-row input { flex: 1; }
@@ -252,30 +267,30 @@
         #fileInput { display: none; }
 
         /* Image Mode Selection */
-        .img-input-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .img-mode-tabs {
-            display: flex;
-            gap: 10px;
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-        }
-        .img-mode-tab {
-            cursor: pointer;
-            color: var(--primary);
-            text-decoration: underline;
-        }
-        .img-preview {
-            max-height: 80px;
-            border-radius: 6px;
-            object-fit: cover;
-            display: none;
-            margin-top: 6px;
-            border: 1px solid var(--border);
-        }
+        .img-input-container { display: flex; flex-direction: column; gap: 8px; }
+        .img-mode-tabs { display: flex; gap: 10px; font-size: 0.8rem; margin-bottom: 4px; }
+        .img-mode-tab { cursor: pointer; color: var(--primary); text-decoration: underline; }
+        .img-preview { max-height: 80px; border-radius: 6px; object-fit: cover; display: none; margin-top: 6px; border: 1px solid var(--border); }
+
+        /* Analytics Styles */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-main); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+        
+        .analysis-section { margin-bottom: 24px; }
+        .analysis-section h3 { font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .progress-list { display: flex; flex-direction: column; gap: 12px; }
+        .progress-item { display: flex; flex-direction: column; gap: 4px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; }
+        .progress-bg { background: var(--border); height: 10px; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+
+        .fill-primary { background: var(--primary); }
+        .fill-green { background: var(--accent-green); }
+        .fill-yellow { background: #f59e0b; }
+        .fill-red { background: var(--danger); }
     </style>
 </head>
 <body>
@@ -283,10 +298,10 @@
     <div class="container">
         <header>
             <div class="logo-title">
-                <i data-lucide="layers"></i>
+                <i data-lucide="landmark"></i>
                 <div>
-                    <h1>Catálogo Universal</h1>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">Móveis, Moedas, Máquinas, Terrenos e Mais</p>
+                    <h1>Gestor de Património</h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Imóveis, Máquinas, Veículos, Ativos Financeiros e Colecionáveis</p>
                 </div>
             </div>
             <div class="actions">
@@ -295,6 +310,9 @@
                 </button>
                 <button id="btn-logout" class="btn btn-outline" onclick="logoutGoogle()" style="display: none;">
                     <i data-lucide="log-out"></i> Sair
+                </button>
+                <button class="btn btn-analytics" onclick="openAnalyticsModal()">
+                    <i data-lucide="pie-chart"></i> Análise Financeira
                 </button>
                 <button class="btn btn-outline" onclick="triggerImport()">
                     <i data-lucide="upload"></i> Importar XML
@@ -313,14 +331,17 @@
         </header>
 
         <div class="presets-bar">
-            <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Filtrar por Categoria:</span>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Filtrar por Categoria:</span>
             <div class="preset-buttons" id="categoryFilters">
                 <button class="preset-chip active" onclick="filterCategory('all')">Todos</button>
-                <button class="preset-chip" onclick="filterCategory('Móveis')"><i data-lucide="armchair"></i> Móveis</button>
-                <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Urbanos')"><i data-lucide="building"></i> Imóveis Urbanos</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Rústicos')"><i data-lucide="trees"></i> Imóveis Rústicos</button>
                 <button class="preset-chip" onclick="filterCategory('Máquinas')"><i data-lucide="cog"></i> Máquinas</button>
-                <button class="preset-chip" onclick="filterCategory('Terrenos')"><i data-lucide="map-pin"></i> Terrenos</button>
-                <button class="preset-chip" onclick="filterCategory('Outros')">Outros</button>
+                <button class="preset-chip" onclick="filterCategory('Móveis')"><i data-lucide="armchair"></i> Móveis</button>
+                <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car"></i> Automóveis</button>
+                <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
+                <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem"></i> Joias & Metais</button>
+                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Financeiros</button>
             </div>
         </div>
 
@@ -334,11 +355,11 @@
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
-    <!-- Modal Form -->
+    <!-- Modal Form (Adicionar/Editar Item) -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Adicionar Item ao Catálogo</h2>
+                <h2 id="modalTitle">Adicionar Item ao Património</h2>
                 <button class="close-modal" type="button" onclick="closeModal()">&times;</button>
             </div>
             <form id="itemForm" onsubmit="saveItem(event)">
@@ -347,47 +368,63 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="itemTitle">Título / Nome *</label>
-                        <input type="text" id="itemTitle" required placeholder="Ex: Cadeira Ergonómica">
+                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro / Ações Apple / Trator John Deere">
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Categoria *</label>
                         <select id="itemCategory" onchange="handleCategoryChange()" required>
+                            <option value="Imóveis Urbanos">Imóveis Urbanos</option>
+                            <option value="Imóveis Rústicos">Imóveis Rústicos</option>
+                            <option value="Máquinas">Máquinas</option>
                             <option value="Móveis">Móveis</option>
-                            <option value="Moedas">Moedas / Numismática</option>
-                            <option value="Máquinas">Máquinas / Equipamentos</option>
-                            <option value="Terrenos">Terrenos / Imóveis</option>
-                            <option value="Outros">Outros</option>
+                            <option value="Automóveis">Automóveis</option>
+                            <option value="Moedas">Moedas</option>
+                            <option value="Joias e metais preciosos">Joias e metais preciosos</option>
+                            <option value="Ativos financeiros">Ativos financeiros</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label for="itemPrice">Preço / Valor estim. (€)</label>
-                        <input type="number" step="0.01" id="itemPrice" placeholder="0.00">
+                        <label for="itemPrice">Preço Unitário (€) *</label>
+                        <input type="number" step="0.01" id="itemPrice" required placeholder="0.00">
                     </div>
                     <div class="form-group">
-                        <label>Imagem do Item</label>
-                        <div class="img-input-container">
-                            <div class="img-mode-tabs">
-                                <span class="img-mode-tab" onclick="switchImgMode('file')">Ficheiro do PC</span> | 
-                                <span class="img-mode-tab" onclick="switchImgMode('url')">URL da Web</span>
-                            </div>
-                            <input type="file" id="itemLocalImage" accept="image/*" onchange="previewLocalImage(event)" style="display: block;">
-                            <input type="url" id="itemImageUrl" placeholder="https://exemplo.com/imagem.jpg" style="display: none;" oninput="previewUrlImage()">
-                            <img id="imagePreview" class="img-preview" alt="Pré-visualização">
-                        </div>
+                        <label for="itemQuantity">Quantidade *</label>
+                        <input type="number" step="1" min="1" id="itemQuantity" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemLiquidity">Liquidez *</label>
+                        <select id="itemLiquidity" required>
+                            <option value="Alta">Alta (Imediata / Dias)</option>
+                            <option value="Média">Média (Semanas / Meses)</option>
+                            <option value="Baixa">Baixa (Longo Prazo / Anos)</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="itemDescription">Descrição</label>
-                    <textarea id="itemDescription" rows="3" placeholder="Detalhes gerais do item..."></textarea>
+                    <label>Imagem do Item</label>
+                    <div class="img-input-container">
+                        <div class="img-mode-tabs">
+                            <span class="img-mode-tab" onclick="switchImgMode('file')">Ficheiro do PC</span> | 
+                            <span class="img-mode-tab" onclick="switchImgMode('url')">URL da Web</span>
+                        </div>
+                        <input type="file" id="itemLocalImage" accept="image/*" onchange="previewLocalImage(event)" style="display: block;">
+                        <input type="url" id="itemImageUrl" placeholder="https://exemplo.com/imagem.jpg" style="display: none;" oninput="previewUrlImage()">
+                        <img id="imagePreview" class="img-preview" alt="Pré-visualização">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemDescription">Descrição / Notas</label>
+                    <textarea id="itemDescription" rows="2" placeholder="Notas adicionais, estado, localização exata..."></textarea>
                 </div>
 
                 <div class="attributes-section">
                     <h4 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        Atributos Específicos
+                        Atributos Específicos da Categoria
                         <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Adicionar Campo</button>
                     </h4>
                     <div id="attributesContainer"></div>
@@ -398,6 +435,45 @@
                     <button type="submit" class="btn btn-primary" id="btnSaveSubmit">Salvar Item</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Análise Financeira e Liquidez -->
+    <div class="modal-overlay" id="analyticsModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2>Análise Financeira do Património</h2>
+                <button class="close-modal" type="button" onclick="closeAnalyticsModal()">&times;</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Património Total</div>
+                    <div class="stat-value" id="statTotalValue">€ 0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total de Itens</div>
+                    <div class="stat-value" id="statTotalItems">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Liquidez Imediata (Alta)</div>
+                    <div class="stat-value" style="color: var(--accent-green);" id="statHighLiquidity">€ 0.00</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3><i data-lucide="pie-chart" style="width: 18px;"></i> Distribuição por Categoria</h3>
+                <div class="progress-list" id="categoryAnalyticsList"></div>
+            </div>
+
+            <div class="analysis-section">
+                <h3><i data-lucide="droplet" style="width: 18px;"></i> Perfil de Liquidez dos Ativos</h3>
+                <div class="progress-list" id="liquidityAnalyticsList"></div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn btn-outline" onclick="closeAnalyticsModal()">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -443,15 +519,31 @@
         let selectedCategory = 'all';
         let currentImageBase64 = '';
 
+        // Atributos Pré-Definidos por Categoria
         const categoryPresets = {
-            'Móveis': ['Material', 'Cor', 'Dimensões'],
-            'Moedas': ['Ano', 'Metal', 'Estado Conservação'],
-            'Máquinas': ['Potência', 'Voltagem', 'Ano Fabrico'],
-            'Terrenos': ['Área Total', 'Área Construção', 'Localização'],
-            'Outros': ['Estado', 'Origem']
+            'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização', 'Certificado Energético'],
+            'Imóveis Rústicos': ['Área Total (ha/m²)', 'Tipo de Terreno', 'Localização', 'Artigo Rústico'],
+            'Máquinas': ['Marca/Modelo', 'Ano de Fabrico', 'Potência', 'N.º de Série'],
+            'Móveis': ['Material', 'Dimensões', 'Estado de Conservação', 'Estilo/Época'],
+            'Automóveis': ['Marca/Modelo', 'Ano', 'Quilometragem (km)', 'Combustível', 'Matrícula'],
+            'Moedas': ['Valor Facial', 'Ano', 'Metal/Liga', 'Estado de Conservação'],
+            'Joias e metais preciosos': ['Tipo de Metal', 'Pureza/Toque', 'Peso (g)', 'Pedras Preciosas'],
+            'Ativos financeiros': ['Tipo de Ativo', 'Emissor/Instituição', 'Rentabilidade/Taxa', 'Data de Maturidade']
         };
 
-        // Função para comprimir imagens locais antes de salvar
+        // Sugestões de Liquidez por Categoria
+        const categoryDefaultLiquidity = {
+            'Imóveis Urbanos': 'Baixa',
+            'Imóveis Rústicos': 'Baixa',
+            'Máquinas': 'Média',
+            'Móveis': 'Média',
+            'Automóveis': 'Média',
+            'Moedas': 'Média',
+            'Joias e metais preciosos': 'Alta',
+            'Ativos financeiros': 'Alta'
+        };
+
+        // Função de Compressão de Imagens
         function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -489,7 +581,7 @@
             });
         }
 
-        // Monitor de Autenticação do Firebase
+        // Auth Monitor
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btnLogin = document.getElementById('btn-login');
@@ -506,7 +598,7 @@
                     catalog = snapshot.docs.map(doc => doc.data());
                     renderItems();
                 }, (err) => {
-                    console.error("Erro na leitura do Firestore:", err);
+                    console.error("Erro no Firestore:", err);
                 });
             } else {
                 if (btnLogin) btnLogin.style.display = 'inline-flex';
@@ -517,7 +609,7 @@
             }
         });
 
-        // Window Exports para compatibilidade com handlers inline do HTML
+        // Global Handlers
         window.loginGoogle = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
@@ -572,7 +664,7 @@
                 grid.innerHTML = `
                     <div class="empty-state">
                         <h3>Nenhum item encontrado</h3>
-                        <p>Tente ajustar a sua pesquisa ou adicione novos itens ao seu catálogo.</p>
+                        <p>Tente ajustar a sua pesquisa ou adicione novos itens ao seu património.</p>
                     </div>
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -581,6 +673,12 @@
 
             grid.innerHTML = filtered.map(item => {
                 const imgUrl = item.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                const quantity = parseInt(item.quantity) || 1;
+                const unitPrice = parseFloat(item.price) || 0;
+                const totalPrice = unitPrice * quantity;
+
+                const liqClass = item.liquidity === 'Alta' ? 'liq-alta' : item.liquidity === 'Média' ? 'liq-media' : 'liq-baixa';
+
                 const attrsHtml = Object.entries(item.attrs || {})
                     .slice(0, 3)
                     .map(([key, val]) => `<p><span>${escapeHtml(key)}:</span> <strong>${escapeHtml(val)}</strong></p>`)
@@ -594,11 +692,20 @@
                             <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=Sem+Imagem'">
                         </div>
                         <div class="card-body">
-                            <span class="card-category">${escapeHtml(item.category)}</span>
+                            <div class="card-header-meta">
+                                <span class="card-category">${escapeHtml(item.category)}</span>
+                                <span class="badge-liq ${liqClass}">Liq. ${escapeHtml(item.liquidity || 'Média')}</span>
+                            </div>
                             <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                            <div class="card-details">${attrsHtml}</div>
+                            <div class="card-details">
+                                <p><span>Quantidade:</span> <strong>${quantity}</strong></p>
+                                ${attrsHtml}
+                            </div>
                             <div class="card-footer">
-                                <span class="card-price">${item.price ? '€ ' + Number(item.price).toLocaleString('pt-PT', {minimumFractionDigits: 2}) : 'Sob Consulta'}</span>
+                                <div class="price-container">
+                                    <span class="card-price">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
+                                </div>
                                 <div class="card-actions">
                                     <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
                                     <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
@@ -635,7 +742,7 @@
                     currentImageBase64 = await compressImage(file);
                     updateImagePreview(currentImageBase64);
                 } catch(err) {
-                    console.error("Erro ao comprimir imagem:", err);
+                    console.error("Erro ao comprimir:", err);
                     alert("Erro ao ler o ficheiro de imagem.");
                 }
             } else {
@@ -670,11 +777,13 @@
             if (editId) {
                 const item = catalog.find(i => String(i.id) === String(editId));
                 if (item) {
-                    document.getElementById('modalTitle').textContent = 'Editar Item';
+                    document.getElementById('modalTitle').textContent = 'Editar Item do Património';
                     document.getElementById('itemId').value = item.id;
                     document.getElementById('itemTitle').value = item.title;
                     document.getElementById('itemCategory').value = item.category;
                     document.getElementById('itemPrice').value = item.price || '';
+                    document.getElementById('itemQuantity').value = item.quantity || 1;
+                    document.getElementById('itemLiquidity').value = item.liquidity || 'Média';
                     document.getElementById('itemDescription').value = item.description || '';
 
                     if (item.image && item.image.startsWith('data:image')) {
@@ -690,7 +799,7 @@
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
                 }
             } else {
-                document.getElementById('modalTitle').textContent = 'Adicionar Item ao Catálogo';
+                document.getElementById('modalTitle').textContent = 'Adicionar Item ao Património';
                 document.getElementById('itemId').value = '';
                 handleCategoryChange();
             }
@@ -703,8 +812,15 @@
         };
 
         window.handleCategoryChange = function() {
+            const cat = document.getElementById('itemCategory').value;
+            
             if (!document.getElementById('itemId').value) {
-                const cat = document.getElementById('itemCategory').value;
+                // Sugere a liquidez habitual da categoria
+                if (categoryDefaultLiquidity[cat]) {
+                    document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
+                }
+
+                // Carrega os atributos pré-definidos da categoria
                 const container = document.getElementById('attributesContainer');
                 container.innerHTML = '';
                 (categoryPresets[cat] || []).forEach(attrName => addAttrRow(attrName, ''));
@@ -716,8 +832,8 @@
             const row = document.createElement('div');
             row.className = 'attr-row';
             row.innerHTML = `
-                <input type="text" placeholder="Atributo (ex: Cor)" class="attr-key" value="${escapeHtml(key)}">
-                <input type="text" placeholder="Valor (ex: Azul)" class="attr-value" value="${escapeHtml(val)}">
+                <input type="text" placeholder="Atributo (ex: Tipologia)" class="attr-key" value="${escapeHtml(key)}">
+                <input type="text" placeholder="Valor (ex: T3 / 100m²)" class="attr-value" value="${escapeHtml(val)}">
                 <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()">&times;</button>
             `;
             container.appendChild(row);
@@ -726,7 +842,7 @@
         window.saveItem = async function(e) {
             e.preventDefault();
             if (!currentUser) {
-                alert("Sessão não detetada. Por favor, volte a iniciar sessão com a sua conta Google.");
+                alert("Sessão não detetada. Por favor, volte a iniciar sessão.");
                 return;
             }
 
@@ -739,6 +855,8 @@
                 const title = document.getElementById('itemTitle').value;
                 const category = document.getElementById('itemCategory').value;
                 const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+                const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
+                const liquidity = document.getElementById('itemLiquidity').value || 'Média';
                 const description = document.getElementById('itemDescription').value || '';
 
                 let image = currentImageBase64 || document.getElementById('itemImageUrl').value || '';
@@ -752,13 +870,11 @@
                     if (k) attrs[k] = v;
                 });
 
-                const newItem = { id, title, category, price, image, description, attrs };
+                const newItem = { id, title, category, price, quantity, liquidity, image, description, attrs };
 
-                // Grava no Firestore
                 const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                 await setDoc(docRef, newItem);
 
-                // RESET DOS FILTROS para garantir que o item aparece no ecrã!
                 selectedCategory = 'all';
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) searchInput.value = '';
@@ -767,18 +883,14 @@
                     btn.classList.toggle('active', btn.textContent.includes('Todos'));
                 });
 
-                // Atualização instantânea da interface
                 const existingIdx = catalog.findIndex(i => String(i.id) === String(id));
-                if (existingIdx >= 0) {
-                    catalog[existingIdx] = newItem;
-                } else {
-                    catalog.push(newItem);
-                }
+                if (existingIdx >= 0) catalog[existingIdx] = newItem;
+                else catalog.push(newItem);
                 
                 renderItems();
                 closeModal();
             } catch (err) {
-                console.error("Erro ao guardar no Firestore:", err);
+                console.error("Erro ao guardar:", err);
                 alert("Erro ao guardar item no Firebase: " + err.message);
             } finally {
                 btnSave.disabled = false;
@@ -800,14 +912,104 @@
             }
         };
 
+        // --- Ferramenta de Análise Financeira & Liquidez ---
+        window.openAnalyticsModal = function() {
+            const modal = document.getElementById('analyticsModal');
+            
+            let totalPortfolioValue = 0;
+            let totalItemsCount = 0;
+            const categoryTotals = {};
+            const categoryCounts = {};
+            const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+
+            catalog.forEach(item => {
+                const qty = parseInt(item.quantity) || 1;
+                const price = parseFloat(item.price) || 0;
+                const itemTotal = price * qty;
+
+                totalPortfolioValue += itemTotal;
+                totalItemsCount += qty;
+
+                // Categoria
+                categoryTotals[item.category] = (categoryTotals[item.category] || 0) + itemTotal;
+                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + qty;
+
+                // Liquidez
+                const liq = item.liquidity || 'Média';
+                liquidityTotals[liq] = (liquidityTotals[liq] || 0) + itemTotal;
+            });
+
+            // Atualiza Cards de Resumo
+            document.getElementById('statTotalValue').textContent = `€ ${totalPortfolioValue.toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('statTotalItems').textContent = totalItemsCount;
+            document.getElementById('statHighLiquidity').textContent = `€ ${liquidityTotals['Alta'].toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Renderiza Análise por Categoria
+            const catContainer = document.getElementById('categoryAnalyticsList');
+            const categories = Object.keys(categoryPresets);
+            
+            catContainer.innerHTML = categories.map(cat => {
+                const val = categoryTotals[cat] || 0;
+                const qty = categoryCounts[cat] || 0;
+                const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
+
+                return `
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span>${cat} (${qty} un)</span>
+                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
+                        </div>
+                        <div class="progress-bg">
+                            <div class="progress-fill fill-primary" style="width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Renderiza Análise de Liquidez
+            const liqContainer = document.getElementById('liquidityAnalyticsList');
+            const liqLevels = [
+                { key: 'Alta', label: 'Alta (Dinheiro / Ações / Metais)', fillClass: 'fill-green' },
+                { key: 'Média', label: 'Média (Veículos / Máquinas / Móveis)', fillClass: 'fill-yellow' },
+                { key: 'Baixa', label: 'Baixa (Imóveis / Terrenos)', fillClass: 'fill-red' }
+            ];
+
+            liqContainer.innerHTML = liqLevels.map(l => {
+                const val = liquidityTotals[l.key] || 0;
+                const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
+
+                return `
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span>${l.label}</span>
+                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
+                        </div>
+                        <div class="progress-bg">
+                            <div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            modal.classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
+
+        window.closeAnalyticsModal = function() {
+            document.getElementById('analyticsModal').classList.remove('active');
+        };
+
+        // Export/Import
         window.exportXML = function() {
-            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<catalogo>\n';
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
             catalog.forEach(item => {
                 xml += '  <item>\n';
                 xml += `    <id>${escapeXml(item.id)}</id>\n`;
                 xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
                 xml += `    <categoria>${escapeXml(item.category)}</categoria>\n`;
                 xml += `    <preco>${item.price}</preco>\n`;
+                xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
+                xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
                 xml += `    <imagem>${escapeXml(item.image)}</imagem>\n`;
                 xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
                 xml += '    <atributos>\n';
@@ -817,9 +1019,9 @@
                 xml += '    </atributos>\n';
                 xml += '  </item>\n';
             });
-            xml += '</catalogo>';
+            xml += '</patrimonio>';
 
-            downloadFile(xml, 'catalogo.xml', 'application/xml');
+            downloadFile(xml, 'patrimonio.xml', 'application/xml');
         };
 
         window.exportCSV = function() {
@@ -827,16 +1029,21 @@
             catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
             const attrKeysArr = Array.from(allAttrKeys);
 
-            let headers = ['ID', 'Título', 'Categoria', 'Preço', 'Imagem', 'Descrição', ...attrKeysArr];
+            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Imagem', 'Descrição', ...attrKeysArr];
             let csvRows = [];
             csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';'));
 
             catalog.forEach(item => {
+                const qty = parseInt(item.quantity) || 1;
+                const price = parseFloat(item.price) || 0;
                 let row = [
                     item.id,
                     item.title,
                     item.category,
-                    item.price,
+                    price,
+                    qty,
+                    price * qty,
+                    item.liquidity || 'Média',
                     item.image,
                     item.description,
                     ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')
@@ -845,14 +1052,14 @@
             });
 
             const csvContent = '\uFEFF' + csvRows.join('\n');
-            downloadFile(csvContent, 'catalogo.csv', 'text/csv;charset=utf-8;');
+            downloadFile(csvContent, 'patrimonio.csv', 'text/csv;charset=utf-8;');
         };
 
         window.triggerImport = function() { document.getElementById('fileInput').click(); };
 
         window.importXML = function(event) {
             if (!currentUser) {
-                alert("Entre com a sua conta do Google para poder importar o ficheiro diretamente para a nuvem.");
+                alert("Entre com a sua conta do Google para importar para a nuvem.");
                 return;
             }
 
@@ -870,8 +1077,10 @@
                         const el = items[i];
                         const id = getXmlText(el, "id") || Date.now().toString() + i;
                         const title = getXmlText(el, "titulo") || 'Sem Título';
-                        const category = getXmlText(el, "categoria") || 'Outros';
+                        const category = getXmlText(el, "categoria") || 'Imóveis Urbanos';
                         const price = parseFloat(getXmlText(el, "preco")) || 0;
+                        const quantity = parseInt(getXmlText(el, "quantidade")) || 1;
+                        const liquidity = getXmlText(el, "liquidez") || 'Média';
                         const image = getXmlText(el, "imagem") || '';
                         const description = getXmlText(el, "descricao") || '';
 
@@ -883,14 +1092,14 @@
                             if (key) attrs[key] = val;
                         });
 
-                        const importedItem = { id, title, category, price, image, description, attrs };
+                        const importedItem = { id, title, category, price, quantity, liquidity, image, description, attrs };
                         const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                         await setDoc(docRef, importedItem);
                     }
 
-                    alert(`${items.length} itens importados e salvos com sucesso!`);
+                    alert(`${items.length} itens importados com sucesso!`);
                 } catch (err) {
-                    alert('Erro ao processar e salvar o ficheiro XML.');
+                    alert('Erro ao processar ficheiro XML.');
                 }
             };
             reader.readAsText(file);
