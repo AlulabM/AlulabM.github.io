@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Património e Catálogos — Firebase</title>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -180,8 +179,9 @@
             flex-direction: column;
         }
 
+        /* Gallery / Carousel in Card */
         .card-img-container {
-            height: 180px;
+            height: 190px;
             width: 100%;
             background-color: #f1f5f9;
             overflow: hidden;
@@ -195,6 +195,40 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .card-img-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 5;
+        }
+        .card-img-nav:hover { background: rgba(15, 23, 42, 0.85); }
+        .card-img-prev { left: 8px; }
+        .card-img-next { right: 8px; }
+
+        .img-counter-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(2px);
         }
 
         .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
@@ -266,11 +300,70 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
         #fileInput { display: none; }
 
-        /* Image Mode Selection */
-        .img-input-container { display: flex; flex-direction: column; gap: 8px; }
-        .img-mode-tabs { display: flex; gap: 10px; font-size: 0.8rem; margin-bottom: 4px; }
-        .img-mode-tab { cursor: pointer; color: var(--primary); text-decoration: underline; }
-        .img-preview { max-height: 80px; border-radius: 6px; object-fit: cover; display: none; margin-top: 6px; border: 1px solid var(--border); }
+        /* Multiple Image Upload & Preview in Modal */
+        .images-upload-container {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .img-input-methods {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .images-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .img-preview-thumb {
+            position: relative;
+            width: 100%;
+            height: 75px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #e2e8f0;
+        }
+
+        .img-preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-preview-remove {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
 
         /* Analytics Styles */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -301,7 +394,7 @@
                 <i data-lucide="landmark"></i>
                 <div>
                     <h1>Gestor de Património</h1>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">Imóveis, Máquinas, Veículos, Ativos Financeiros e Colecionáveis</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Imóveis, Máquinas, Veículos, Ativos Financeiros e Outros</p>
                 </div>
             </div>
             <div class="actions">
@@ -342,6 +435,7 @@
                 <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
                 <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem"></i> Joias & Metais</button>
                 <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Financeiros</button>
+                <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box"></i> Outros</button>
             </div>
         </div>
 
@@ -355,7 +449,6 @@
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
-    <!-- Modal Form (Adicionar/Editar Item) -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
@@ -381,6 +474,7 @@
                             <option value="Moedas">Moedas</option>
                             <option value="Joias e metais preciosos">Joias e metais preciosos</option>
                             <option value="Ativos financeiros">Ativos financeiros</option>
+                            <option value="Outros">Outros</option>
                         </select>
                     </div>
                 </div>
@@ -405,15 +499,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Imagem do Item</label>
-                    <div class="img-input-container">
-                        <div class="img-mode-tabs">
-                            <span class="img-mode-tab" onclick="switchImgMode('file')">Ficheiro do PC</span> | 
-                            <span class="img-mode-tab" onclick="switchImgMode('url')">URL da Web</span>
+                    <label>Fotos do Item (Permite Múltiplas)</label>
+                    <div class="images-upload-container">
+                        <div class="img-input-methods">
+                            <input type="file" id="itemLocalImages" accept="image/*" multiple onchange="handleMultipleFiles(event)" style="display: none;">
+                            <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="document.getElementById('itemLocalImages').click()">
+                                <i data-lucide="image-plus" style="width: 16px;"></i> Carregar Fotos do PC
+                            </button>
+                            <div class="url-input-group">
+                                <input type="url" id="itemImageUrlInput" placeholder="https://exemplo.com/foto.jpg" style="font-size: 0.85rem; padding: 6px 10px;">
+                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addUrlImage()">+ Add URL</button>
+                            </div>
                         </div>
-                        <input type="file" id="itemLocalImage" accept="image/*" onchange="previewLocalImage(event)" style="display: block;">
-                        <input type="url" id="itemImageUrl" placeholder="https://exemplo.com/imagem.jpg" style="display: none;" oninput="previewUrlImage()">
-                        <img id="imagePreview" class="img-preview" alt="Pré-visualização">
+                        <div class="images-preview-grid" id="imagesPreviewContainer"></div>
                     </div>
                 </div>
 
@@ -438,7 +536,6 @@
         </div>
     </div>
 
-    <!-- Modal Análise Financeira e Liquidez -->
     <div class="modal-overlay" id="analyticsModal">
         <div class="modal modal-large">
             <div class="modal-header">
@@ -477,7 +574,6 @@
         </div>
     </div>
 
-    <!-- Script de Integração com Firebase v10 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
@@ -517,9 +613,10 @@
         let unsubscribeListener = null;
 
         let selectedCategory = 'all';
-        let currentImageBase64 = '';
+        let currentModalImages = []; // Array de imagens para o item em edição no modal
+        let cardImageIndexes = {}; // Guarda o índice da imagem atual visualizada em cada cartão
 
-        // Atributos Pré-Definidos por Categoria
+        // Atributos Pré-Definidos por Categoria (Inclui a nova categoria Outros)
         const categoryPresets = {
             'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização', 'Certificado Energético'],
             'Imóveis Rústicos': ['Área Total (ha/m²)', 'Tipo de Terreno', 'Localização', 'Artigo Rústico'],
@@ -528,7 +625,8 @@
             'Automóveis': ['Marca/Modelo', 'Ano', 'Quilometragem (km)', 'Combustível', 'Matrícula'],
             'Moedas': ['Valor Facial', 'Ano', 'Metal/Liga', 'Estado de Conservação'],
             'Joias e metais preciosos': ['Tipo de Metal', 'Pureza/Toque', 'Peso (g)', 'Pedras Preciosas'],
-            'Ativos financeiros': ['Tipo de Ativo', 'Emissor/Instituição', 'Rentabilidade/Taxa', 'Data de Maturidade']
+            'Ativos financeiros': ['Tipo de Ativo', 'Emissor/Instituição', 'Rentabilidade/Taxa', 'Data de Maturidade'],
+            'Outros': ['Estado', 'Origem']
         };
 
         // Sugestões de Liquidez por Categoria
@@ -540,7 +638,8 @@
             'Automóveis': 'Média',
             'Moedas': 'Média',
             'Joias e metais preciosos': 'Alta',
-            'Ativos financeiros': 'Alta'
+            'Ativos financeiros': 'Alta',
+            'Outros': 'Média'
         };
 
         // Função de Compressão de Imagens
@@ -672,7 +771,15 @@
             }
 
             grid.innerHTML = filtered.map(item => {
-                const imgUrl = item.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                // Suporte para retrocompatibilidade: `images` array ou `image` string única
+                let itemImages = item.images || [];
+                if (itemImages.length === 0 && item.image) {
+                    itemImages = [item.image];
+                }
+
+                const currentImgIdx = cardImageIndexes[item.id] || 0;
+                const imgUrl = itemImages[currentImgIdx] || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                
                 const quantity = parseInt(item.quantity) || 1;
                 const unitPrice = parseFloat(item.price) || 0;
                 const totalPrice = unitPrice * quantity;
@@ -686,10 +793,23 @@
 
                 const safeId = String(item.id).replace(/'/g, "\\'");
 
+                // Carrossel de Fotos se houver mais do que 1 foto
+                let navBtnsHtml = '';
+                let counterBadgeHtml = '';
+                if (itemImages.length > 1) {
+                    navBtnsHtml = `
+                        <button class="card-img-nav card-img-prev" type="button" onclick="navigateCardImage('${safeId}', -1, event)">&lt;</button>
+                        <button class="card-img-nav card-img-next" type="button" onclick="navigateCardImage('${safeId}', 1, event)">&gt;</button>
+                    `;
+                    counterBadgeHtml = `<span class="img-counter-badge">${currentImgIdx + 1}/${itemImages.length}</span>`;
+                }
+
                 return `
                     <div class="item-card">
                         <div class="card-img-container">
+                            ${navBtnsHtml}
                             <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=Sem+Imagem'">
+                            ${counterBadgeHtml}
                         </div>
                         <div class="card-body">
                             <div class="card-header-meta">
@@ -719,51 +839,73 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        window.switchImgMode = function(mode) {
-            const fileInput = document.getElementById('itemLocalImage');
-            const urlInput = document.getElementById('itemImageUrl');
-            if (mode === 'file') {
-                fileInput.style.display = 'block';
-                urlInput.style.display = 'none';
-                urlInput.value = '';
-            } else {
-                fileInput.style.display = 'none';
-                urlInput.style.display = 'block';
-                fileInput.value = '';
-                currentImageBase64 = '';
-            }
-            updateImagePreview();
+        // Navegação de Fotos nos Cartões
+        window.navigateCardImage = function(itemId, direction, event) {
+            if (event) event.stopPropagation();
+            const item = catalog.find(i => String(i.id) === String(itemId));
+            if (!item) return;
+
+            let imgs = item.images || [];
+            if (imgs.length === 0 && item.image) imgs = [item.image];
+            if (imgs.length <= 1) return;
+
+            let currentIdx = cardImageIndexes[itemId] || 0;
+            currentIdx += direction;
+
+            if (currentIdx < 0) currentIdx = imgs.length - 1;
+            if (currentIdx >= imgs.length) currentIdx = 0;
+
+            cardImageIndexes[itemId] = currentIdx;
+            renderItems();
         };
 
-        window.previewLocalImage = async function(event) {
-            const file = event.target.files[0];
-            if (file) {
+        // Handlers de Múltiplas Fotos no Modal Form
+        window.handleMultipleFiles = async function(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            for (let file of files) {
                 try {
-                    currentImageBase64 = await compressImage(file);
-                    updateImagePreview(currentImageBase64);
-                } catch(err) {
-                    console.error("Erro ao comprimir:", err);
-                    alert("Erro ao ler o ficheiro de imagem.");
+                    const compressed = await compressImage(file);
+                    currentModalImages.push(compressed);
+                } catch (err) {
+                    console.error("Erro ao comprimir imagem:", err);
                 }
-            } else {
-                currentImageBase64 = '';
-                updateImagePreview();
+            }
+            event.target.value = '';
+            renderImagesPreview();
+        };
+
+        window.addUrlImage = function() {
+            const input = document.getElementById('itemImageUrlInput');
+            const url = input.value.trim();
+            if (url) {
+                currentModalImages.push(url);
+                input.value = '';
+                renderImagesPreview();
             }
         };
 
-        window.previewUrlImage = function() {
-            const url = document.getElementById('itemImageUrl').value;
-            updateImagePreview(url);
+        window.removeModalImage = function(index) {
+            currentModalImages.splice(index, 1);
+            renderImagesPreview();
         };
 
-        function updateImagePreview(src = '') {
-            const preview = document.getElementById('imagePreview');
-            if (src) {
-                preview.src = src;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
+        function renderImagesPreview() {
+            const container = document.getElementById('imagesPreviewContainer');
+            if (!container) return;
+
+            if (currentModalImages.length === 0) {
+                container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); grid-column: 1/-1;">Nenhuma foto adicionada.</span>';
+                return;
             }
+
+            container.innerHTML = currentModalImages.map((src, idx) => `
+                <div class="img-preview-thumb">
+                    <img src="${escapeHtml(src)}" alt="Miniatura ${idx + 1}" onerror="this.src='https://via.placeholder.com/100?text=Erro'">
+                    <button type="button" class="img-preview-remove" onclick="removeModalImage(${idx})" title="Remover Foto">&times;</button>
+                </div>
+            `).join('');
         }
 
         window.openModal = function(editId = null) {
@@ -771,8 +913,7 @@
             const form = document.getElementById('itemForm');
             form.reset();
             document.getElementById('attributesContainer').innerHTML = '';
-            currentImageBase64 = '';
-            switchImgMode('file');
+            currentModalImages = [];
 
             if (editId) {
                 const item = catalog.find(i => String(i.id) === String(editId));
@@ -786,14 +927,10 @@
                     document.getElementById('itemLiquidity').value = item.liquidity || 'Média';
                     document.getElementById('itemDescription').value = item.description || '';
 
-                    if (item.image && item.image.startsWith('data:image')) {
-                        currentImageBase64 = item.image;
-                        switchImgMode('file');
-                        updateImagePreview(item.image);
+                    if (item.images && item.images.length > 0) {
+                        currentModalImages = [...item.images];
                     } else if (item.image) {
-                        switchImgMode('url');
-                        document.getElementById('itemImageUrl').value = item.image;
-                        updateImagePreview(item.image);
+                        currentModalImages = [item.image];
                     }
 
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
@@ -804,6 +941,7 @@
                 handleCategoryChange();
             }
 
+            renderImagesPreview();
             modal.classList.add('active');
         };
 
@@ -859,7 +997,8 @@
                 const liquidity = document.getElementById('itemLiquidity').value || 'Média';
                 const description = document.getElementById('itemDescription').value || '';
 
-                let image = currentImageBase64 || document.getElementById('itemImageUrl').value || '';
+                const images = [...currentModalImages];
+                const primaryImage = images[0] || '';
 
                 const attrs = {};
                 const keys = document.querySelectorAll('.attr-key');
@@ -870,7 +1009,18 @@
                     if (k) attrs[k] = v;
                 });
 
-                const newItem = { id, title, category, price, quantity, liquidity, image, description, attrs };
+                const newItem = { 
+                    id, 
+                    title, 
+                    category, 
+                    price, 
+                    quantity, 
+                    liquidity, 
+                    images, 
+                    image: primaryImage, // Mantido para compatibilidade
+                    description, 
+                    attrs 
+                };
 
                 const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                 await setDoc(docRef, newItem);
@@ -1003,6 +1153,9 @@
         window.exportXML = function() {
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
             catalog.forEach(item => {
+                let imgs = item.images || [];
+                if (imgs.length === 0 && item.image) imgs = [item.image];
+
                 xml += '  <item>\n';
                 xml += `    <id>${escapeXml(item.id)}</id>\n`;
                 xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
@@ -1010,7 +1163,12 @@
                 xml += `    <preco>${item.price}</preco>\n`;
                 xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
                 xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
-                xml += `    <imagem>${escapeXml(item.image)}</imagem>\n`;
+                xml += `    <imagem>${escapeXml(item.image || (imgs[0] || ''))}</imagem>\n`;
+                xml += '    <imagens>\n';
+                imgs.forEach(img => {
+                    xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`;
+                });
+                xml += '    </imagens>\n';
                 xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
                 xml += '    <atributos>\n';
                 Object.entries(item.attrs || {}).forEach(([k, v]) => {
@@ -1029,13 +1187,16 @@
             catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
             const attrKeysArr = Array.from(allAttrKeys);
 
-            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Imagem', 'Descrição', ...attrKeysArr];
+            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Fotos (URLs/Base64)', 'Descrição', ...attrKeysArr];
             let csvRows = [];
             csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';'));
 
             catalog.forEach(item => {
                 const qty = parseInt(item.quantity) || 1;
                 const price = parseFloat(item.price) || 0;
+                let imgs = item.images || [];
+                if (imgs.length === 0 && item.image) imgs = [item.image];
+
                 let row = [
                     item.id,
                     item.title,
@@ -1044,7 +1205,7 @@
                     qty,
                     price * qty,
                     item.liquidity || 'Média',
-                    item.image,
+                    imgs.join(' | '),
                     item.description,
                     ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')
                 ];
@@ -1077,12 +1238,21 @@
                         const el = items[i];
                         const id = getXmlText(el, "id") || Date.now().toString() + i;
                         const title = getXmlText(el, "titulo") || 'Sem Título';
-                        const category = getXmlText(el, "categoria") || 'Imóveis Urbanos';
+                        const category = getXmlText(el, "categoria") || 'Outros';
                         const price = parseFloat(getXmlText(el, "preco")) || 0;
                         const quantity = parseInt(getXmlText(el, "quantidade")) || 1;
                         const liquidity = getXmlText(el, "liquidez") || 'Média';
-                        const image = getXmlText(el, "imagem") || '';
+                        const singleImg = getXmlText(el, "imagem") || '';
                         const description = getXmlText(el, "descricao") || '';
+
+                        const images = [];
+                        const imgNodes = el.querySelectorAll("imagens > imagem_url");
+                        imgNodes.forEach(node => {
+                            if (node.textContent) images.push(node.textContent);
+                        });
+                        if (images.length === 0 && singleImg) {
+                            images.push(singleImg);
+                        }
 
                         const attrs = {};
                         const attrNodes = el.querySelectorAll("atributo");
@@ -1092,7 +1262,19 @@
                             if (key) attrs[key] = val;
                         });
 
-                        const importedItem = { id, title, category, price, quantity, liquidity, image, description, attrs };
+                        const importedItem = { 
+                            id, 
+                            title, 
+                            category, 
+                            price, 
+                            quantity, 
+                            liquidity, 
+                            images, 
+                            image: images[0] || '', 
+                            description, 
+                            attrs 
+                        };
+                        
                         const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                         await setDoc(docRef, importedItem);
                     }
