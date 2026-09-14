@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Património e Catálogos — Firebase</title>
+    <title>Gestor de Património — Versão PC com Partilha</title>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -20,370 +21,153 @@
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            line-height: 1.5;
-            padding: 24px;
-        }
-
-        .container {
-            max-width: 1320px;
-            margin: 0 auto;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.5; padding: 24px; }
+        .container { max-width: 1400px; margin: 0 auto; }
 
         /* Header */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 20px 28px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg); padding: 20px 24px; border-radius: var(--radius);
+            box-shadow: var(--shadow); margin-bottom: 24px; border: 1px solid var(--border);
         }
 
-        .logo-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .logo-title { display: flex; align-items: center; gap: 14px; }
+        .logo-title i { color: var(--primary); width: 32px; height: 32px; }
+        .logo-title h1 { font-size: 1.5rem; font-weight: 700; }
 
-        .logo-title i {
-            color: var(--primary);
-            width: 32px;
-            height: 32px;
-        }
-
-        .logo-title h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .actions { display: flex; gap: 10px; align-items: center; }
 
         /* Buttons */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px;
+            border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease;
         }
 
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
-
         .btn-success { background-color: var(--accent-green); color: white; }
         .btn-success:hover { background-color: #059669; }
-
         .btn-analytics { background-color: #8b5cf6; color: white; }
         .btn-analytics:hover { background-color: #7c3aed; }
-
         .btn-outline { background-color: transparent; border-color: var(--border); color: var(--text-main); }
         .btn-outline:hover { background-color: #f1f5f9; }
 
         /* Presets Bar */
         .presets-bar {
-            background: var(--card-bg);
-            padding: 16px 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            background: var(--card-bg); padding: 14px 20px; border-radius: var(--radius);
+            box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
         }
-
         .preset-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-
         .preset-chip {
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--bg-main);
-            color: var(--text-main);
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+            background: var(--bg-main); color: var(--text-main); font-size: 0.85rem;
+            font-weight: 500; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
         }
-
-        .preset-chip.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+        .preset-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Controls */
-        .controls { display: flex; gap: 16px; margin-bottom: 24px; align-items: center; }
-
+        .controls { display: flex; gap: 16px; margin-bottom: 24px; }
         .search-box { position: relative; flex: 1; }
-
-        .search-box i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            width: 18px;
-            height: 18px;
-        }
-
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px; }
         .search-box input {
-            width: 100%;
-            padding: 10px 14px 10px 42px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.95rem;
-            outline: none;
-            background: var(--card-bg);
+            width: 100%; padding: 12px 16px 12px 44px; border-radius: 8px;
+            border: 1px solid var(--border); font-size: 0.95rem; outline: none; background: var(--card-bg);
         }
 
-        /* Content Layout */
+        /* Content Grid */
         .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
         }
 
         .item-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border);
+            box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        .item-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
 
-        /* Gallery / Carousel in Card */
         .card-img-container {
-            height: 190px;
-            width: 100%;
-            background-color: #f1f5f9;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            height: 200px; width: 100%; background-color: #f1f5f9; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
-
-        .card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
+        .card-img { width: 100%; height: 100%; object-fit: cover; }
         .card-img-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(15, 23, 42, 0.6);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.2s;
-            z-index: 5;
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(15, 23, 42, 0.6); color: white; border: none;
+            border-radius: 50%; width: 32px; height: 32px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; z-index: 5;
         }
-        .card-img-nav:hover { background: rgba(15, 23, 42, 0.85); }
         .card-img-prev { left: 8px; }
         .card-img-next { right: 8px; }
-
         .img-counter-badge {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(15, 23, 42, 0.7);
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 600;
-            backdrop-filter: blur(2px);
+            position: absolute; bottom: 8px; right: 8px; background: rgba(15, 23, 42, 0.75);
+            color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 600;
         }
 
         .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
-        .card-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .card-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .card-category { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
-        
-        .badge-liq { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+        .badge-liq { font-size: 0.75rem; padding: 2px 10px; border-radius: 12px; font-weight: 600; }
         .liq-alta { background: #d1fae5; color: #065f46; }
         .liq-media { background: #fef3c7; color: #92400e; }
         .liq-baixa { background: #fee2e2; color: #991b1b; }
 
-        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
-        .card-details { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; flex: 1; }
+        .card-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+        .card-details { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; flex: 1; }
         .card-details p { margin-bottom: 4px; display: flex; justify-content: space-between; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
-        .price-container { display: flex; flex-direction: column; }
-        .card-price { font-size: 1.15rem; font-weight: 700; color: var(--accent-green); }
-        .card-unit-price { font-size: 0.75rem; color: var(--text-muted); }
+        .card-price { font-size: 1.25rem; font-weight: 700; color: var(--accent-green); }
         .card-actions { display: flex; gap: 6px; }
 
         .btn-icon {
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: transparent;
-            cursor: pointer;
-            color: var(--text-muted);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent;
+            cursor: pointer; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
         }
         .btn-icon:hover { background: #f1f5f9; color: var(--text-main); }
-        .btn-icon.delete-btn:hover { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
+        .btn-icon.delete-btn:hover { background: #fee2e2; color: var(--danger); }
+        .btn-icon.share-btn:hover { background: #dbeafe; color: var(--primary); }
 
-        /* Modal Styles */
+        /* Modais */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 1000;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; padding: 20px;
         }
-
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .modal {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            width: 90%; max-width: 650px; max-height: 90vh;
-            overflow-y: auto;
-            padding: 24px;
-        }
-
-        .modal-large { max-width: 850px; }
-
+        .modal { background: var(--card-bg); border-radius: var(--radius); width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 24px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .close-modal { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted); }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-        .attributes-section { background: var(--bg-main); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
-        .attr-row { display: flex; gap: 10px; margin-bottom: 8px; }
-        .attr-row input { flex: 1; }
+        .attributes-section { background: var(--bg-main); padding: 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .attr-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
-        #fileInput { display: none; }
 
-        /* Multiple Image Upload & Preview in Modal */
-        .images-upload-container {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        /* Imagens Modal */
+        .images-upload-container { background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .img-input-methods { display: flex; gap: 8px; }
+        .url-input-group { display: flex; gap: 6px; flex: 1; }
+        .images-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+        .img-preview-thumb { position: relative; width: 100%; height: 70px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+        .img-preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview-remove { position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .img-input-methods {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .url-input-group {
-            display: flex;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .images-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-            gap: 10px;
-            margin-top: 4px;
-        }
-
-        .img-preview-thumb {
-            position: relative;
-            width: 100%;
-            height: 75px;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            background: #e2e8f0;
-        }
-
-        .img-preview-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .img-preview-remove {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        /* Analytics Styles */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--bg-main); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); }
-        .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
-        
-        .analysis-section { margin-bottom: 24px; }
-        .analysis-section h3 { font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        
-        .progress-list { display: flex; flex-direction: column; gap: 12px; }
-        .progress-item { display: flex; flex-direction: column; gap: 4px; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; }
-        .progress-bg { background: var(--border); height: 10px; border-radius: 999px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
-
-        .fill-primary { background: var(--primary); }
-        .fill-green { background: var(--accent-green); }
-        .fill-yellow { background: #f59e0b; }
-        .fill-red { background: var(--danger); }
+        /* Estilos da Vista Pública (Apenas Consulta) */
+        .public-badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .public-img-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .public-img-gallery img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+        .public-attr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .public-attr-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .public-attr-table tr:nth-child(even) { background: var(--bg-main); }
     </style>
 </head>
 <body>
@@ -394,85 +178,64 @@
                 <i data-lucide="landmark"></i>
                 <div>
                     <h1>Gestor de Património</h1>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">Imóveis, Máquinas, Veículos, Ativos Financeiros e Outros</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Painel de Gestão e Consulta</p>
                 </div>
             </div>
             <div class="actions">
                 <button id="btn-login" class="btn btn-primary" onclick="loginGoogle()">
-                    <i data-lucide="log-in"></i> Entrar com Google
+                    <i data-lucide="log-in" style="width: 18px;"></i> Entrar
                 </button>
                 <button id="btn-logout" class="btn btn-outline" onclick="logoutGoogle()" style="display: none;">
-                    <i data-lucide="log-out"></i> Sair
-                </button>
-                <button class="btn btn-analytics" onclick="openAnalyticsModal()">
-                    <i data-lucide="pie-chart"></i> Análise Financeira
-                </button>
-                <button class="btn btn-outline" onclick="triggerImport()">
-                    <i data-lucide="upload"></i> Importar XML
-                </button>
-                <button class="btn btn-outline" onclick="exportXML()">
-                    <i data-lucide="download"></i> Exportar XML
-                </button>
-                <button class="btn btn-success" onclick="exportCSV()">
-                    <i data-lucide="file-spreadsheet"></i> Exportar CSV
+                    <i data-lucide="log-out" style="width: 18px;"></i> Sair
                 </button>
                 <button class="btn btn-primary" onclick="openModal()">
-                    <i data-lucide="plus"></i> Novo Item
+                    <i data-lucide="plus" style="width: 18px;"></i> Novo Item
                 </button>
-                <input type="file" id="fileInput" accept=".xml" onchange="importXML(event)">
             </div>
         </header>
 
         <div class="presets-bar">
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Filtrar por Categoria:</span>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Categorias:</span>
             <div class="preset-buttons" id="categoryFilters">
                 <button class="preset-chip active" onclick="filterCategory('all')">Todos</button>
-                <button class="preset-chip" onclick="filterCategory('Imóveis Urbanos')"><i data-lucide="building"></i> Imóveis Urbanos</button>
-                <button class="preset-chip" onclick="filterCategory('Imóveis Rústicos')"><i data-lucide="trees"></i> Imóveis Rústicos</button>
-                <button class="preset-chip" onclick="filterCategory('Máquinas')"><i data-lucide="cog"></i> Máquinas</button>
-                <button class="preset-chip" onclick="filterCategory('Móveis')"><i data-lucide="armchair"></i> Móveis</button>
-                <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car"></i> Automóveis</button>
-                <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
-                <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem"></i> Joias & Metais</button>
-                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Financeiros</button>
-                <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box"></i> Outros</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Urbanos')"><i data-lucide="building" style="width: 14px;"></i> Urbanos</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Rústicos')"><i data-lucide="trees" style="width: 14px;"></i> Rústicos</button>
+                <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car" style="width: 14px;"></i> Automóveis</button>
+                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up" style="width: 14px;"></i> Finanças</button>
+                <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box" style="width: 14px;"></i> Outros</button>
             </div>
         </div>
 
         <div class="controls">
             <div class="search-box">
                 <i data-lucide="search"></i>
-                <input type="text" id="searchInput" placeholder="Pesquisar por título, categoria ou atributos..." oninput="renderItems()">
+                <input type="text" id="searchInput" placeholder="Pesquisar património..." oninput="renderItems()">
             </div>
         </div>
 
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
+    <!-- Modal Form (Criar/Editar) -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Adicionar Item ao Património</h2>
+                <h2 id="modalTitle">Adicionar Item</h2>
                 <button class="close-modal" type="button" onclick="closeModal()">&times;</button>
             </div>
             <form id="itemForm" onsubmit="saveItem(event)">
                 <input type="hidden" id="itemId">
-                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="itemTitle">Título / Nome *</label>
-                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro / Ações Apple / Trator John Deere">
+                        <label for="itemTitle">Título *</label>
+                        <input type="text" id="itemTitle" required placeholder="Ex: T2 Lisboa / Ações Apple">
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Categoria *</label>
                         <select id="itemCategory" onchange="handleCategoryChange()" required>
                             <option value="Imóveis Urbanos">Imóveis Urbanos</option>
                             <option value="Imóveis Rústicos">Imóveis Rústicos</option>
-                            <option value="Máquinas">Máquinas</option>
-                            <option value="Móveis">Móveis</option>
                             <option value="Automóveis">Automóveis</option>
-                            <option value="Moedas">Moedas</option>
-                            <option value="Joias e metais preciosos">Joias e metais preciosos</option>
                             <option value="Ativos financeiros">Ativos financeiros</option>
                             <option value="Outros">Outros</option>
                         </select>
@@ -481,34 +244,32 @@
 
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label for="itemPrice">Preço Unitário (€) *</label>
+                        <label for="itemPrice">Preço (€) *</label>
                         <input type="number" step="0.01" id="itemPrice" required placeholder="0.00">
                     </div>
                     <div class="form-group">
-                        <label for="itemQuantity">Quantidade *</label>
+                        <label for="itemQuantity">Qtd. *</label>
                         <input type="number" step="1" min="1" id="itemQuantity" value="1" required>
                     </div>
                     <div class="form-group">
                         <label for="itemLiquidity">Liquidez *</label>
                         <select id="itemLiquidity" required>
-                            <option value="Alta">Alta (Imediata / Dias)</option>
-                            <option value="Média">Média (Semanas / Meses)</option>
-                            <option value="Baixa">Baixa (Longo Prazo / Anos)</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Média">Média</option>
+                            <option value="Baixa">Baixa</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Fotos do Item (Permite Múltiplas)</label>
+                    <label>Fotos</label>
                     <div class="images-upload-container">
                         <div class="img-input-methods">
-                            <input type="file" id="itemLocalImages" accept="image/*" multiple onchange="handleMultipleFiles(event)" style="display: none;">
-                            <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="document.getElementById('itemLocalImages').click()">
-                                <i data-lucide="image-plus" style="width: 16px;"></i> Carregar Fotos do PC
-                            </button>
+                            <input type="file" id="itemLocalImages" accept="image/*" multiple onchange="handleMultipleFiles(event)" style="display:none;">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('itemLocalImages').click()">+ Ficheiro</button>
                             <div class="url-input-group">
-                                <input type="url" id="itemImageUrlInput" placeholder="https://exemplo.com/foto.jpg" style="font-size: 0.85rem; padding: 6px 10px;">
-                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addUrlImage()">+ Add URL</button>
+                                <input type="url" id="itemImageUrlInput" placeholder="URL da imagem">
+                                <button type="button" class="btn btn-outline" onclick="addUrlImage()">+ URL</button>
                             </div>
                         </div>
                         <div class="images-preview-grid" id="imagesPreviewContainer"></div>
@@ -516,60 +277,39 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="itemDescription">Descrição / Notas</label>
-                    <textarea id="itemDescription" rows="2" placeholder="Notas adicionais, estado, localização exata..."></textarea>
+                    <label for="itemDescription">Descrição</label>
+                    <textarea id="itemDescription" rows="2"></textarea>
                 </div>
 
                 <div class="attributes-section">
-                    <h4 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        Atributos Específicos da Categoria
-                        <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Adicionar Campo</button>
-                    </h4>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="margin:0;">Campos Adicionais</label>
+                        <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Campo</button>
+                    </div>
                     <div id="attributesContainer"></div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
                     <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" id="btnSaveSubmit">Salvar Item</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveSubmit">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="modal-overlay" id="analyticsModal">
-        <div class="modal modal-large">
+    <!-- Modal de Consulta Exclusiva (Link Público / View Only) -->
+    <div class="modal-overlay" id="publicViewModal">
+        <div class="modal">
             <div class="modal-header">
-                <h2>Análise Financeira do Património</h2>
-                <button class="close-modal" type="button" onclick="closeAnalyticsModal()">&times;</button>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Património Total</div>
-                    <div class="stat-value" id="statTotalValue">€ 0.00</div>
+                <div>
+                    <span class="public-badge"><i data-lucide="eye" style="width: 14px;"></i> Modo de Consulta</span>
+                    <h2 id="publicTitle" style="margin-top: 6px;">Visualizar Item</h2>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total de Itens</div>
-                    <div class="stat-value" id="statTotalItems">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Liquidez Imediata (Alta)</div>
-                    <div class="stat-value" style="color: var(--accent-green);" id="statHighLiquidity">€ 0.00</div>
-                </div>
+                <button class="close-modal" type="button" onclick="closePublicModal()">&times;</button>
             </div>
-
-            <div class="analysis-section">
-                <h3><i data-lucide="pie-chart" style="width: 18px;"></i> Distribuição por Categoria</h3>
-                <div class="progress-list" id="categoryAnalyticsList"></div>
-            </div>
-
-            <div class="analysis-section">
-                <h3><i data-lucide="droplet" style="width: 18px;"></i> Perfil de Liquidez dos Ativos</h3>
-                <div class="progress-list" id="liquidityAnalyticsList"></div>
-            </div>
-
+            <div id="publicModalBody"></div>
             <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" class="btn btn-outline" onclick="closeAnalyticsModal()">Fechar</button>
+                <button type="button" class="btn btn-outline" onclick="closePublicModal()">Fechar</button>
             </div>
         </div>
     </div>
@@ -577,24 +317,12 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
-            getAuth, 
-            GoogleAuthProvider, 
-            signInWithPopup, 
-            signOut, 
-            onAuthStateChanged,
-            setPersistence,
-            browserLocalPersistence
+            getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            deleteDoc, 
-            onSnapshot, 
-            collection 
+            getFirestore, doc, setDoc, deleteDoc, getDoc, onSnapshot, collection 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAZJLq_lahgFfIdUZM1ieVumLsP50taeZo",
             authDomain: "meu-inventario-5b10b.firebaseapp.com",
@@ -611,76 +339,94 @@
         let catalog = [];
         let currentUser = null;
         let unsubscribeListener = null;
-
         let selectedCategory = 'all';
-        let currentModalImages = []; // Array de imagens para o item em edição no modal
-        let cardImageIndexes = {}; // Guarda o índice da imagem atual visualizada em cada cartão
+        let currentModalImages = [];
+        let cardImageIndexes = {};
 
-        // Atributos Pré-Definidos por Categoria (Inclui a nova categoria Outros)
-        const categoryPresets = {
-            'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização', 'Certificado Energético'],
-            'Imóveis Rústicos': ['Área Total (ha/m²)', 'Tipo de Terreno', 'Localização', 'Artigo Rústico'],
-            'Máquinas': ['Marca/Modelo', 'Ano de Fabrico', 'Potência', 'N.º de Série'],
-            'Móveis': ['Material', 'Dimensões', 'Estado de Conservação', 'Estilo/Época'],
-            'Automóveis': ['Marca/Modelo', 'Ano', 'Quilometragem (km)', 'Combustível', 'Matrícula'],
-            'Moedas': ['Valor Facial', 'Ano', 'Metal/Liga', 'Estado de Conservação'],
-            'Joias e metais preciosos': ['Tipo de Metal', 'Pureza/Toque', 'Peso (g)', 'Pedras Preciosas'],
-            'Ativos financeiros': ['Tipo de Ativo', 'Emissor/Instituição', 'Rentabilidade/Taxa', 'Data de Maturidade'],
-            'Outros': ['Estado', 'Origem']
-        };
+        // Inicialização e deteção de link partilhado
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            checkSharedLink();
+        });
 
-        // Sugestões de Liquidez por Categoria
-        const categoryDefaultLiquidity = {
-            'Imóveis Urbanos': 'Baixa',
-            'Imóveis Rústicos': 'Baixa',
-            'Máquinas': 'Média',
-            'Móveis': 'Média',
-            'Automóveis': 'Média',
-            'Moedas': 'Média',
-            'Joias e metais preciosos': 'Alta',
-            'Ativos financeiros': 'Alta',
-            'Outros': 'Média'
-        };
+        // Verificar se existe parâmetro de partilha no URL (?u=USER_ID&item=ITEM_ID)
+        async function checkSharedLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedUser = urlParams.get('u');
+            const sharedItem = urlParams.get('item');
 
-        // Função de Compressão de Imagens
-        function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        let width = img.width;
-                        let height = img.height;
+            if (sharedUser && sharedItem) {
+                try {
+                    const docRef = doc(db, "usuarios", sharedUser, "itens", sharedItem);
+                    const docSnap = await getDoc(docRef);
 
-                        if (width > height) {
-                            if (width > maxWidth) {
-                                height = Math.round((height * maxWidth) / width);
-                                width = maxWidth;
-                            }
-                        } else {
-                            if (height > maxHeight) {
-                                width = Math.round((width * maxHeight) / height);
-                                height = maxHeight;
-                            }
-                        }
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        resolve(canvas.toDataURL('image/jpeg', quality));
-                    };
-                    img.onerror = (err) => reject(err);
-                };
-                reader.onerror = (err) => reject(err);
-            });
+                    if (docSnap.exists()) {
+                        openPublicViewModal(docSnap.data());
+                    } else {
+                        alert("O item partilhado não foi encontrado ou já não está disponível.");
+                    }
+                } catch (err) {
+                    console.error("Erro ao carregar link partilhado:", err);
+                    alert("Não foi possível carregar o item partilhado. Verifique as Firebase Rules.");
+                }
+            }
         }
 
-        // Auth Monitor
+        window.shareItem = function(itemId) {
+            if (!currentUser) return;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?u=${currentUser.uid}&item=${itemId}`;
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("Link de consulta copiado para a área de transferência!");
+            }).catch(() => {
+                prompt("Copie o link de consulta:", shareUrl);
+            });
+        };
+
+        window.openPublicViewModal = function(item) {
+            const modal = document.getElementById('publicViewModal');
+            document.getElementById('publicTitle').textContent = item.title;
+
+            let imgs = item.images || [];
+            if (imgs.length === 0 && item.image) imgs = [item.image];
+
+            const galleryHtml = imgs.length > 0 
+                ? `<div class="public-img-gallery">${imgs.map(src => `<img src="${escapeHtml(src)}" alt="Imagem">`).join('')}</div>` 
+                : '';
+
+            const attrsHtml = Object.entries(item.attrs || {}).map(([k, v]) => `
+                <tr>
+                    <td style="font-weight:600; color:var(--text-muted); width:40%;">${escapeHtml(k)}</td>
+                    <td>${escapeHtml(v)}</td>
+                </tr>
+            `).join('');
+
+            const totalPrice = (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
+
+            document.getElementById('publicModalBody').innerHTML = `
+                ${galleryHtml}
+                <div style="margin-bottom: 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.8rem; text-transform:uppercase; font-weight:700; color:var(--primary);">${escapeHtml(item.category)}</span>
+                        <span class="badge-liq ${item.liquidity === 'Alta' ? 'liq-alta' : item.liquidity === 'Média' ? 'liq-media' : 'liq-baixa'}">Liquidez ${escapeHtml(item.liquidity || 'Média')}</span>
+                    </div>
+                    <p style="font-size:1.4rem; font-weight:700; color:var(--accent-green);">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})}</p>
+                    ${item.quantity > 1 ? `<p style="font-size:0.85rem; color:var(--text-muted);">Qtd: ${item.quantity} (€ ${parseFloat(item.price).toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un)</p>` : ''}
+                </div>
+                ${item.description ? `<p style="margin-bottom:16px; font-size:0.95rem;">${escapeHtml(item.description)}</p>` : ''}
+                ${attrsHtml ? `<table class="public-attr-table">${attrsHtml}</table>` : ''}
+            `;
+
+            modal.classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
+
+        window.closePublicModal = function() {
+            document.getElementById('publicViewModal').classList.remove('active');
+            // Limpa parâmetros da barra de endereço sem recarregar a página
+            window.history.replaceState({}, document.title, window.location.pathname);
+        };
+
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btnLogin = document.getElementById('btn-login');
@@ -696,8 +442,6 @@
                 unsubscribeListener = onSnapshot(userItemsRef, (snapshot) => {
                     catalog = snapshot.docs.map(doc => doc.data());
                     renderItems();
-                }, (err) => {
-                    console.error("Erro no Firestore:", err);
                 });
             } else {
                 if (btnLogin) btnLogin.style.display = 'inline-flex';
@@ -708,16 +452,12 @@
             }
         });
 
-        // Global Handlers
         window.loginGoogle = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 const provider = new GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
                 await signInWithPopup(auth, provider);
-            } catch (err) {
-                alert("Erro ao iniciar sessão com o Google: " + err.message);
-            }
+            } catch (err) { alert("Erro ao entrar: " + err.message); }
         };
 
         window.logoutGoogle = () => signOut(auth);
@@ -733,102 +473,56 @@
         window.renderItems = function() {
             const grid = document.getElementById('catalogGrid');
             if (!grid) return;
-
-            const searchInput = document.getElementById('searchInput');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
+            const search = document.getElementById('searchInput').value.toLowerCase();
 
             if (!currentUser) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <h3>Sessão não iniciada</h3>
-                        <p>Inicie sessão com a sua conta do Google para carregar e gerir os seus itens na nuvem.</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="empty-state"><h3>Sessão não iniciada</h3><p>Inicie sessão para gerir o seu património ou utilize um link de partilha para consultar um item.</p></div>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
             const filtered = catalog.filter(item => {
                 const matchesCat = selectedCategory === 'all' || item.category === selectedCategory;
-                const matchesSearch = (item.title && item.title.toLowerCase().includes(search)) ||
-                                      (item.category && item.category.toLowerCase().includes(search)) ||
-                                      (item.description && item.description.toLowerCase().includes(search)) ||
-                                      Object.entries(item.attrs || {}).some(([k, v]) => 
-                                          k.toLowerCase().includes(search) || String(v).toLowerCase().includes(search)
-                                      );
+                const matchesSearch = item.title.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
                 return matchesCat && matchesSearch;
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <h3>Nenhum item encontrado</h3>
-                        <p>Tente ajustar a sua pesquisa ou adicione novos itens ao seu património.</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="empty-state"><h3>Sem itens</h3><p>Nenhum registo encontrado.</p></div>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
             grid.innerHTML = filtered.map(item => {
-                // Suporte para retrocompatibilidade: `images` array ou `image` string única
-                let itemImages = item.images || [];
-                if (itemImages.length === 0 && item.image) {
-                    itemImages = [item.image];
-                }
-
+                let itemImages = item.images || (item.image ? [item.image] : []);
                 const currentImgIdx = cardImageIndexes[item.id] || 0;
                 const imgUrl = itemImages[currentImgIdx] || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
-                
-                const quantity = parseInt(item.quantity) || 1;
-                const unitPrice = parseFloat(item.price) || 0;
-                const totalPrice = unitPrice * quantity;
-
-                const liqClass = item.liquidity === 'Alta' ? 'liq-alta' : item.liquidity === 'Média' ? 'liq-media' : 'liq-baixa';
-
-                const attrsHtml = Object.entries(item.attrs || {})
-                    .slice(0, 3)
-                    .map(([key, val]) => `<p><span>${escapeHtml(key)}:</span> <strong>${escapeHtml(val)}</strong></p>`)
-                    .join('');
-
+                const totalPrice = (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1);
                 const safeId = String(item.id).replace(/'/g, "\\'");
-
-                // Carrossel de Fotos se houver mais do que 1 foto
-                let navBtnsHtml = '';
-                let counterBadgeHtml = '';
-                if (itemImages.length > 1) {
-                    navBtnsHtml = `
-                        <button class="card-img-nav card-img-prev" type="button" onclick="navigateCardImage('${safeId}', -1, event)">&lt;</button>
-                        <button class="card-img-nav card-img-next" type="button" onclick="navigateCardImage('${safeId}', 1, event)">&gt;</button>
-                    `;
-                    counterBadgeHtml = `<span class="img-counter-badge">${currentImgIdx + 1}/${itemImages.length}</span>`;
-                }
 
                 return `
                     <div class="item-card">
                         <div class="card-img-container">
-                            ${navBtnsHtml}
-                            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=Sem+Imagem'">
-                            ${counterBadgeHtml}
+                            ${itemImages.length > 1 ? `
+                                <button class="card-img-nav card-img-prev" onclick="navigateCardImage('${safeId}', -1, event)">&lt;</button>
+                                <button class="card-img-nav card-img-next" onclick="navigateCardImage('${safeId}', 1, event)">&gt;</button>
+                                <span class="img-counter-badge">${currentImgIdx + 1}/${itemImages.length}</span>
+                            ` : ''}
+                            <img src="${escapeHtml(imgUrl)}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=Sem+Imagem'">
                         </div>
                         <div class="card-body">
                             <div class="card-header-meta">
                                 <span class="card-category">${escapeHtml(item.category)}</span>
-                                <span class="badge-liq ${liqClass}">Liq. ${escapeHtml(item.liquidity || 'Média')}</span>
+                                <span class="badge-liq ${item.liquidity === 'Alta' ? 'liq-alta' : item.liquidity === 'Média' ? 'liq-media' : 'liq-baixa'}">${escapeHtml(item.liquidity || 'Média')}</span>
                             </div>
                             <h3 class="card-title">${escapeHtml(item.title)}</h3>
-                            <div class="card-details">
-                                <p><span>Quantidade:</span> <strong>${quantity}</strong></p>
-                                ${attrsHtml}
-                            </div>
+                            <div class="card-details"><p><span>Qtd:</span> <strong>${item.quantity || 1}</strong></p></div>
                             <div class="card-footer">
-                                <div class="price-container">
-                                    <span class="card-price">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                                    ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
-                                </div>
+                                <span class="card-price">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})}</span>
                                 <div class="card-actions">
-                                    <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
-                                    <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
+                                    <button class="btn-icon share-btn" title="Partilhar Link de Consulta" onclick="shareItem('${safeId}')"><i data-lucide="share-2" style="width: 16px;"></i></button>
+                                    <button class="btn-icon" title="Editar" onclick="editItem('${safeId}')"><i data-lucide="edit-2" style="width: 16px;"></i></button>
+                                    <button class="btn-icon delete-btn" title="Eliminar" onclick="deleteItem('${safeId}')"><i data-lucide="trash-2" style="width: 16px;"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -839,86 +533,27 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        // Navegação de Fotos nos Cartões
-        window.navigateCardImage = function(itemId, direction, event) {
-            if (event) event.stopPropagation();
+        window.navigateCardImage = function(itemId, dir, event) {
+            event.stopPropagation();
             const item = catalog.find(i => String(i.id) === String(itemId));
-            if (!item) return;
-
-            let imgs = item.images || [];
-            if (imgs.length === 0 && item.image) imgs = [item.image];
-            if (imgs.length <= 1) return;
-
-            let currentIdx = cardImageIndexes[itemId] || 0;
-            currentIdx += direction;
-
-            if (currentIdx < 0) currentIdx = imgs.length - 1;
-            if (currentIdx >= imgs.length) currentIdx = 0;
-
-            cardImageIndexes[itemId] = currentIdx;
+            let imgs = item.images || (item.image ? [item.image] : []);
+            let idx = (cardImageIndexes[itemId] || 0) + dir;
+            if (idx < 0) idx = imgs.length - 1;
+            if (idx >= imgs.length) idx = 0;
+            cardImageIndexes[itemId] = idx;
             renderItems();
         };
 
-        // Handlers de Múltiplas Fotos no Modal Form
-        window.handleMultipleFiles = async function(event) {
-            const files = Array.from(event.target.files);
-            if (!files.length) return;
-
-            for (let file of files) {
-                try {
-                    const compressed = await compressImage(file);
-                    currentModalImages.push(compressed);
-                } catch (err) {
-                    console.error("Erro ao comprimir imagem:", err);
-                }
-            }
-            event.target.value = '';
-            renderImagesPreview();
-        };
-
-        window.addUrlImage = function() {
-            const input = document.getElementById('itemImageUrlInput');
-            const url = input.value.trim();
-            if (url) {
-                currentModalImages.push(url);
-                input.value = '';
-                renderImagesPreview();
-            }
-        };
-
-        window.removeModalImage = function(index) {
-            currentModalImages.splice(index, 1);
-            renderImagesPreview();
-        };
-
-        function renderImagesPreview() {
-            const container = document.getElementById('imagesPreviewContainer');
-            if (!container) return;
-
-            if (currentModalImages.length === 0) {
-                container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); grid-column: 1/-1;">Nenhuma foto adicionada.</span>';
-                return;
-            }
-
-            container.innerHTML = currentModalImages.map((src, idx) => `
-                <div class="img-preview-thumb">
-                    <img src="${escapeHtml(src)}" alt="Miniatura ${idx + 1}" onerror="this.src='https://via.placeholder.com/100?text=Erro'">
-                    <button type="button" class="img-preview-remove" onclick="removeModalImage(${idx})" title="Remover Foto">&times;</button>
-                </div>
-            `).join('');
-        }
-
         window.openModal = function(editId = null) {
             const modal = document.getElementById('itemModal');
-            const form = document.getElementById('itemForm');
-            form.reset();
+            document.getElementById('itemForm').reset();
             document.getElementById('attributesContainer').innerHTML = '';
             currentModalImages = [];
 
             if (editId) {
                 const item = catalog.find(i => String(i.id) === String(editId));
                 if (item) {
-                    document.getElementById('modalTitle').textContent = 'Editar Item do Património';
+                    document.getElementById('modalTitle').textContent = 'Editar Item';
                     document.getElementById('itemId').value = item.id;
                     document.getElementById('itemTitle').value = item.title;
                     document.getElementById('itemCategory').value = item.category;
@@ -926,52 +561,26 @@
                     document.getElementById('itemQuantity').value = item.quantity || 1;
                     document.getElementById('itemLiquidity').value = item.liquidity || 'Média';
                     document.getElementById('itemDescription').value = item.description || '';
-
-                    if (item.images && item.images.length > 0) {
-                        currentModalImages = [...item.images];
-                    } else if (item.image) {
-                        currentModalImages = [item.image];
-                    }
-
+                    currentModalImages = item.images ? [...item.images] : (item.image ? [item.image] : []);
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
                 }
             } else {
-                document.getElementById('modalTitle').textContent = 'Adicionar Item ao Património';
+                document.getElementById('modalTitle').textContent = 'Novo Item';
                 document.getElementById('itemId').value = '';
-                handleCategoryChange();
             }
-
             renderImagesPreview();
             modal.classList.add('active');
         };
 
-        window.closeModal = function() {
-            document.getElementById('itemModal').classList.remove('active');
-        };
+        window.closeModal = function() { document.getElementById('itemModal').classList.remove('active'); };
 
-        window.handleCategoryChange = function() {
-            const cat = document.getElementById('itemCategory').value;
-            
-            if (!document.getElementById('itemId').value) {
-                // Sugere a liquidez habitual da categoria
-                if (categoryDefaultLiquidity[cat]) {
-                    document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
-                }
-
-                // Carrega os atributos pré-definidos da categoria
-                const container = document.getElementById('attributesContainer');
-                container.innerHTML = '';
-                (categoryPresets[cat] || []).forEach(attrName => addAttrRow(attrName, ''));
-            }
-        };
-
-        window.addAttrRow = function(key = '', val = '') {
+        window.addAttrRow = function(k = '', v = '') {
             const container = document.getElementById('attributesContainer');
             const row = document.createElement('div');
             row.className = 'attr-row';
             row.innerHTML = `
-                <input type="text" placeholder="Atributo (ex: Tipologia)" class="attr-key" value="${escapeHtml(key)}">
-                <input type="text" placeholder="Valor (ex: T3 / 100m²)" class="attr-value" value="${escapeHtml(val)}">
+                <input type="text" placeholder="Campo" class="attr-key" value="${escapeHtml(k)}">
+                <input type="text" placeholder="Valor" class="attr-value" value="${escapeHtml(v)}">
                 <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()">&times;</button>
             `;
             container.appendChild(row);
@@ -979,354 +588,40 @@
 
         window.saveItem = async function(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert("Sessão não detetada. Por favor, volte a iniciar sessão.");
-                return;
-            }
+            if (!currentUser) return;
 
-            const btnSave = document.getElementById('btnSaveSubmit');
-            btnSave.disabled = true;
-            btnSave.textContent = 'A guardar...';
+            const id = document.getElementById('itemId').value || Date.now().toString();
+            const itemData = {
+                id,
+                title: document.getElementById('itemTitle').value,
+                category: document.getElementById('itemCategory').value,
+                price: parseFloat(document.getElementById('itemPrice').value) || 0,
+                quantity: parseInt(document.getElementById('itemQuantity').value) || 1,
+                liquidity: document.getElementById('itemLiquidity').value,
+                description: document.getElementById('itemDescription').value,
+                images: [...currentModalImages],
+                image: currentModalImages[0] || '',
+                attrs: {}
+            };
 
-            try {
-                const id = document.getElementById('itemId').value || Date.now().toString();
-                const title = document.getElementById('itemTitle').value;
-                const category = document.getElementById('itemCategory').value;
-                const price = parseFloat(document.getElementById('itemPrice').value) || 0;
-                const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
-                const liquidity = document.getElementById('itemLiquidity').value || 'Média';
-                const description = document.getElementById('itemDescription').value || '';
+            const keys = document.querySelectorAll('.attr-key');
+            const vals = document.querySelectorAll('.attr-value');
+            keys.forEach((k, i) => { if (k.value.trim()) itemData.attrs[k.value.trim()] = vals[i].value.trim(); });
 
-                const images = [...currentModalImages];
-                const primaryImage = images[0] || '';
-
-                const attrs = {};
-                const keys = document.querySelectorAll('.attr-key');
-                const vals = document.querySelectorAll('.attr-value');
-                keys.forEach((kInput, index) => {
-                    const k = kInput.value.trim();
-                    const v = vals[index].value.trim();
-                    if (k) attrs[k] = v;
-                });
-
-                const newItem = { 
-                    id, 
-                    title, 
-                    category, 
-                    price, 
-                    quantity, 
-                    liquidity, 
-                    images, 
-                    image: primaryImage, // Mantido para compatibilidade
-                    description, 
-                    attrs 
-                };
-
-                const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
-                await setDoc(docRef, newItem);
-
-                selectedCategory = 'all';
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) searchInput.value = '';
-                
-                document.querySelectorAll('.preset-chip').forEach(btn => {
-                    btn.classList.toggle('active', btn.textContent.includes('Todos'));
-                });
-
-                const existingIdx = catalog.findIndex(i => String(i.id) === String(id));
-                if (existingIdx >= 0) catalog[existingIdx] = newItem;
-                else catalog.push(newItem);
-                
-                renderItems();
-                closeModal();
-            } catch (err) {
-                console.error("Erro ao guardar:", err);
-                alert("Erro ao guardar item no Firebase: " + err.message);
-            } finally {
-                btnSave.disabled = false;
-                btnSave.textContent = 'Salvar Item';
-            }
+            await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), itemData);
+            closeModal();
         };
 
         window.editItem = function(id) { openModal(id); };
-
         window.deleteItem = async function(id) {
-            if (!currentUser) return;
-            if (confirm('Tem a certeza que pretende eliminar este item?')) {
-                try {
-                    const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
-                    await deleteDoc(docRef);
-                } catch (err) {
-                    alert("Erro ao eliminar o item: " + err.message);
-                }
+            if (currentUser && confirm('Eliminar este item?')) {
+                await deleteDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)));
             }
         };
-
-        // --- Ferramenta de Análise Financeira & Liquidez ---
-        window.openAnalyticsModal = function() {
-            const modal = document.getElementById('analyticsModal');
-            
-            let totalPortfolioValue = 0;
-            let totalItemsCount = 0;
-            const categoryTotals = {};
-            const categoryCounts = {};
-            const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-
-            catalog.forEach(item => {
-                const qty = parseInt(item.quantity) || 1;
-                const price = parseFloat(item.price) || 0;
-                const itemTotal = price * qty;
-
-                totalPortfolioValue += itemTotal;
-                totalItemsCount += qty;
-
-                // Categoria
-                categoryTotals[item.category] = (categoryTotals[item.category] || 0) + itemTotal;
-                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + qty;
-
-                // Liquidez
-                const liq = item.liquidity || 'Média';
-                liquidityTotals[liq] = (liquidityTotals[liq] || 0) + itemTotal;
-            });
-
-            // Atualiza Cards de Resumo
-            document.getElementById('statTotalValue').textContent = `€ ${totalPortfolioValue.toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('statTotalItems').textContent = totalItemsCount;
-            document.getElementById('statHighLiquidity').textContent = `€ ${liquidityTotals['Alta'].toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            // Renderiza Análise por Categoria
-            const catContainer = document.getElementById('categoryAnalyticsList');
-            const categories = Object.keys(categoryPresets);
-            
-            catContainer.innerHTML = categories.map(cat => {
-                const val = categoryTotals[cat] || 0;
-                const qty = categoryCounts[cat] || 0;
-                const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${cat} (${qty} un)</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill fill-primary" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Renderiza Análise de Liquidez
-            const liqContainer = document.getElementById('liquidityAnalyticsList');
-            const liqLevels = [
-                { key: 'Alta', label: 'Alta (Dinheiro / Ações / Metais)', fillClass: 'fill-green' },
-                { key: 'Média', label: 'Média (Veículos / Máquinas / Móveis)', fillClass: 'fill-yellow' },
-                { key: 'Baixa', label: 'Baixa (Imóveis / Terrenos)', fillClass: 'fill-red' }
-            ];
-
-            liqContainer.innerHTML = liqLevels.map(l => {
-                const val = liquidityTotals[l.key] || 0;
-                const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${l.label}</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            modal.classList.add('active');
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        };
-
-        window.closeAnalyticsModal = function() {
-            document.getElementById('analyticsModal').classList.remove('active');
-        };
-
-        // Export/Import
-        window.exportXML = function() {
-            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
-            catalog.forEach(item => {
-                let imgs = item.images || [];
-                if (imgs.length === 0 && item.image) imgs = [item.image];
-
-                xml += '  <item>\n';
-                xml += `    <id>${escapeXml(item.id)}</id>\n`;
-                xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
-                xml += `    <categoria>${escapeXml(item.category)}</categoria>\n`;
-                xml += `    <preco>${item.price}</preco>\n`;
-                xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
-                xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
-                xml += `    <imagem>${escapeXml(item.image || (imgs[0] || ''))}</imagem>\n`;
-                xml += '    <imagens>\n';
-                imgs.forEach(img => {
-                    xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`;
-                });
-                xml += '    </imagens>\n';
-                xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
-                xml += '    <atributos>\n';
-                Object.entries(item.attrs || {}).forEach(([k, v]) => {
-                    xml += `      <atributo nome="${escapeXml(k)}">${escapeXml(v)}</atributo>\n`;
-                });
-                xml += '    </atributos>\n';
-                xml += '  </item>\n';
-            });
-            xml += '</patrimonio>';
-
-            downloadFile(xml, 'patrimonio.xml', 'application/xml');
-        };
-
-        window.exportCSV = function() {
-            const allAttrKeys = new Set();
-            catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
-            const attrKeysArr = Array.from(allAttrKeys);
-
-            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Fotos (URLs/Base64)', 'Descrição', ...attrKeysArr];
-            let csvRows = [];
-            csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';'));
-
-            catalog.forEach(item => {
-                const qty = parseInt(item.quantity) || 1;
-                const price = parseFloat(item.price) || 0;
-                let imgs = item.images || [];
-                if (imgs.length === 0 && item.image) imgs = [item.image];
-
-                let row = [
-                    item.id,
-                    item.title,
-                    item.category,
-                    price,
-                    qty,
-                    price * qty,
-                    item.liquidity || 'Média',
-                    imgs.join(' | '),
-                    item.description,
-                    ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')
-                ];
-                csvRows.push(row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(';'));
-            });
-
-            const csvContent = '\uFEFF' + csvRows.join('\n');
-            downloadFile(csvContent, 'patrimonio.csv', 'text/csv;charset=utf-8;');
-        };
-
-        window.triggerImport = function() { document.getElementById('fileInput').click(); };
-
-        window.importXML = function(event) {
-            if (!currentUser) {
-                alert("Entre com a sua conta do Google para importar para a nuvem.");
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
-                    const items = xmlDoc.getElementsByTagName("item");
-
-                    for (let i = 0; i < items.length; i++) {
-                        const el = items[i];
-                        const id = getXmlText(el, "id") || Date.now().toString() + i;
-                        const title = getXmlText(el, "titulo") || 'Sem Título';
-                        const category = getXmlText(el, "categoria") || 'Outros';
-                        const price = parseFloat(getXmlText(el, "preco")) || 0;
-                        const quantity = parseInt(getXmlText(el, "quantidade")) || 1;
-                        const liquidity = getXmlText(el, "liquidez") || 'Média';
-                        const singleImg = getXmlText(el, "imagem") || '';
-                        const description = getXmlText(el, "descricao") || '';
-
-                        const images = [];
-                        const imgNodes = el.querySelectorAll("imagens > imagem_url");
-                        imgNodes.forEach(node => {
-                            if (node.textContent) images.push(node.textContent);
-                        });
-                        if (images.length === 0 && singleImg) {
-                            images.push(singleImg);
-                        }
-
-                        const attrs = {};
-                        const attrNodes = el.querySelectorAll("atributo");
-                        attrNodes.forEach(node => {
-                            const key = node.getAttribute("nome");
-                            const val = node.textContent;
-                            if (key) attrs[key] = val;
-                        });
-
-                        const importedItem = { 
-                            id, 
-                            title, 
-                            category, 
-                            price, 
-                            quantity, 
-                            liquidity, 
-                            images, 
-                            image: images[0] || '', 
-                            description, 
-                            attrs 
-                        };
-                        
-                        const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
-                        await setDoc(docRef, importedItem);
-                    }
-
-                    alert(`${items.length} itens importados com sucesso!`);
-                } catch (err) {
-                    alert('Erro ao processar ficheiro XML.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        };
-
-        function getXmlText(parent, tagName) {
-            const node = parent.getElementsByTagName(tagName)[0];
-            return node ? node.textContent : '';
-        }
-
-        function escapeXml(str) {
-            return String(str || '').replace(/[<>&'"]/g, c => {
-                switch (c) {
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '&': return '&amp;';
-                    case "'": return '&apos;';
-                    case '"': return '&quot;';
-                }
-            });
-        }
 
         function escapeHtml(str) {
-            return String(str || '').replace(/[&<>"']/g, match => {
-                const masks = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-                return masks[match];
-            });
+            return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
-
-        function downloadFile(content, fileName, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
     </script>
 </body>
 </html>
