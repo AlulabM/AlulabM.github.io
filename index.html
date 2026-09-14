@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Património — Versão PC com Partilha</title>
-    <!-- Lucide Icons -->
+    <title>Gestor de Património — Versão PC</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -25,7 +24,6 @@
         body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.5; padding: 24px; }
         .container { max-width: 1400px; margin: 0 auto; }
 
-        /* Header */
         header {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--card-bg); padding: 20px 24px; border-radius: var(--radius);
@@ -38,7 +36,6 @@
 
         .actions { display: flex; gap: 10px; align-items: center; }
 
-        /* Buttons */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px;
@@ -47,14 +44,9 @@
 
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
-        .btn-success { background-color: var(--accent-green); color: white; }
-        .btn-success:hover { background-color: #059669; }
-        .btn-analytics { background-color: #8b5cf6; color: white; }
-        .btn-analytics:hover { background-color: #7c3aed; }
         .btn-outline { background-color: transparent; border-color: var(--border); color: var(--text-main); }
         .btn-outline:hover { background-color: #f1f5f9; }
 
-        /* Presets Bar */
         .presets-bar {
             background: var(--card-bg); padding: 14px 20px; border-radius: var(--radius);
             box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border);
@@ -69,7 +61,6 @@
         }
         .preset-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Controls */
         .controls { display: flex; gap: 16px; margin-bottom: 24px; }
         .search-box { position: relative; flex: 1; }
         .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px; }
@@ -78,7 +69,6 @@
             border: 1px solid var(--border); font-size: 0.95rem; outline: none; background: var(--card-bg);
         }
 
-        /* Content Grid */
         .content-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
         }
@@ -132,7 +122,6 @@
         .btn-icon.delete-btn:hover { background: #fee2e2; color: var(--danger); }
         .btn-icon.share-btn:hover { background: #dbeafe; color: var(--primary); }
 
-        /* Modais */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -152,16 +141,14 @@
         .attr-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
 
-        /* Imagens Modal */
         .images-upload-container { background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
         .img-input-methods { display: flex; gap: 8px; }
         .url-input-group { display: flex; gap: 6px; flex: 1; }
-        .images-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+        .images-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin-top: 8px; }
         .img-preview-thumb { position: relative; width: 100%; height: 70px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
         .img-preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .img-preview-remove { position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Estilos da Vista Pública (Apenas Consulta) */
         .public-badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .public-img-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
         .public-img-gallery img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
@@ -232,7 +219,7 @@
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Categoria *</label>
-                        <select id="itemCategory" onchange="handleCategoryChange()" required>
+                        <select id="itemCategory" required>
                             <option value="Imóveis Urbanos">Imóveis Urbanos</option>
                             <option value="Imóveis Rústicos">Imóveis Rústicos</option>
                             <option value="Automóveis">Automóveis</option>
@@ -297,7 +284,7 @@
         </div>
     </div>
 
-    <!-- Modal de Consulta Exclusiva (Link Público / View Only) -->
+    <!-- Modal Consulta Exclusiva -->
     <div class="modal-overlay" id="publicViewModal">
         <div class="modal">
             <div class="modal-header">
@@ -343,13 +330,11 @@
         let currentModalImages = [];
         let cardImageIndexes = {};
 
-        // Inicialização e deteção de link partilhado
         document.addEventListener('DOMContentLoaded', async () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             checkSharedLink();
         });
 
-        // Verificar se existe parâmetro de partilha no URL (?u=USER_ID&item=ITEM_ID)
         async function checkSharedLink() {
             const urlParams = new URLSearchParams(window.location.search);
             const sharedUser = urlParams.get('u');
@@ -363,11 +348,11 @@
                     if (docSnap.exists()) {
                         openPublicViewModal(docSnap.data());
                     } else {
-                        alert("O item partilhado não foi encontrado ou já não está disponível.");
+                        alert("O item partilhado não foi encontrado.");
                     }
                 } catch (err) {
                     console.error("Erro ao carregar link partilhado:", err);
-                    alert("Não foi possível carregar o item partilhado. Verifique as Firebase Rules.");
+                    alert("Erro ao carregar item. Verifique se publicou as Firebase Rules.");
                 }
             }
         }
@@ -375,7 +360,6 @@
         window.shareItem = function(itemId) {
             if (!currentUser) return;
             const shareUrl = `${window.location.origin}${window.location.pathname}?u=${currentUser.uid}&item=${itemId}`;
-            
             navigator.clipboard.writeText(shareUrl).then(() => {
                 alert("Link de consulta copiado para a área de transferência!");
             }).catch(() => {
@@ -387,11 +371,9 @@
             const modal = document.getElementById('publicViewModal');
             document.getElementById('publicTitle').textContent = item.title;
 
-            let imgs = item.images || [];
-            if (imgs.length === 0 && item.image) imgs = [item.image];
-
+            let imgs = item.images || (item.image ? [item.image] : []);
             const galleryHtml = imgs.length > 0 
-                ? `<div class="public-img-gallery">${imgs.map(src => `<img src="${escapeHtml(src)}" alt="Imagem">`).join('')}</div>` 
+                ? `<div class="public-img-gallery">${imgs.map(src => `<img src="${escapeHtml(src)}">`).join('')}</div>` 
                 : '';
 
             const attrsHtml = Object.entries(item.attrs || {}).map(([k, v]) => `
@@ -411,7 +393,6 @@
                         <span class="badge-liq ${item.liquidity === 'Alta' ? 'liq-alta' : item.liquidity === 'Média' ? 'liq-media' : 'liq-baixa'}">Liquidez ${escapeHtml(item.liquidity || 'Média')}</span>
                     </div>
                     <p style="font-size:1.4rem; font-weight:700; color:var(--accent-green);">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})}</p>
-                    ${item.quantity > 1 ? `<p style="font-size:0.85rem; color:var(--text-muted);">Qtd: ${item.quantity} (€ ${parseFloat(item.price).toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un)</p>` : ''}
                 </div>
                 ${item.description ? `<p style="margin-bottom:16px; font-size:0.95rem;">${escapeHtml(item.description)}</p>` : ''}
                 ${attrsHtml ? `<table class="public-attr-table">${attrsHtml}</table>` : ''}
@@ -423,7 +404,6 @@
 
         window.closePublicModal = function() {
             document.getElementById('publicViewModal').classList.remove('active');
-            // Limpa parâmetros da barra de endereço sem recarregar a página
             window.history.replaceState({}, document.title, window.location.pathname);
         };
 
@@ -442,6 +422,9 @@
                 unsubscribeListener = onSnapshot(userItemsRef, (snapshot) => {
                     catalog = snapshot.docs.map(doc => doc.data());
                     renderItems();
+                }, (error) => {
+                    console.error("Erro no Firestore:", error);
+                    alert("Erro de acesso ao Firebase. Verifique se atualizou as Firebase Security Rules.");
                 });
             } else {
                 if (btnLogin) btnLogin.style.display = 'inline-flex';
@@ -488,7 +471,7 @@
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="empty-state"><h3>Sem itens</h3><p>Nenhum registo encontrado.</p></div>`;
+                grid.innerHTML = `<div class="empty-state"><h3>Sem itens</h3><p>Nenhum registo encontrado nesta vista.</p></div>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
@@ -520,7 +503,7 @@
                             <div class="card-footer">
                                 <span class="card-price">€ ${totalPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})}</span>
                                 <div class="card-actions">
-                                    <button class="btn-icon share-btn" title="Partilhar Link de Consulta" onclick="shareItem('${safeId}')"><i data-lucide="share-2" style="width: 16px;"></i></button>
+                                    <button class="btn-icon share-btn" title="Partilhar Link" onclick="shareItem('${safeId}')"><i data-lucide="share-2" style="width: 16px;"></i></button>
                                     <button class="btn-icon" title="Editar" onclick="editItem('${safeId}')"><i data-lucide="edit-2" style="width: 16px;"></i></button>
                                     <button class="btn-icon delete-btn" title="Eliminar" onclick="deleteItem('${safeId}')"><i data-lucide="trash-2" style="width: 16px;"></i></button>
                                 </div>
@@ -574,6 +557,44 @@
 
         window.closeModal = function() { document.getElementById('itemModal').classList.remove('active'); };
 
+        window.addUrlImage = function() {
+            const input = document.getElementById('itemImageUrlInput');
+            if (input && input.value.trim()) {
+                currentModalImages.push(input.value.trim());
+                input.value = '';
+                renderImagesPreview();
+            }
+        };
+
+        window.handleMultipleFiles = function(event) {
+            const files = event.target.files;
+            if (!files) return;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentModalImages.push(e.target.result);
+                    renderImagesPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.renderImagesPreview = function() {
+            const container = document.getElementById('imagesPreviewContainer');
+            if (!container) return;
+            container.innerHTML = currentModalImages.map((src, idx) => `
+                <div class="img-preview-thumb">
+                    <img src="${escapeHtml(src)}">
+                    <button type="button" class="img-preview-remove" onclick="removeImage(${idx})">&times;</button>
+                </div>
+            `).join('');
+        };
+
+        window.removeImage = function(idx) {
+            currentModalImages.splice(idx, 1);
+            renderImagesPreview();
+        };
+
         window.addAttrRow = function(k = '', v = '') {
             const container = document.getElementById('attributesContainer');
             const row = document.createElement('div');
@@ -588,7 +609,7 @@
 
         window.saveItem = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
+            if (!currentUser) return alert("Precisa de iniciar sessão primeiro!");
 
             const id = document.getElementById('itemId').value || Date.now().toString();
             const itemData = {
@@ -608,8 +629,12 @@
             const vals = document.querySelectorAll('.attr-value');
             keys.forEach((k, i) => { if (k.value.trim()) itemData.attrs[k.value.trim()] = vals[i].value.trim(); });
 
-            await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), itemData);
-            closeModal();
+            try {
+                await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), itemData);
+                closeModal();
+            } catch (err) {
+                alert("Erro ao guardar item: " + err.message);
+            }
         };
 
         window.editItem = function(id) { openModal(id); };
