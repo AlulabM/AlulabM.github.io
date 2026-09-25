@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor de Património — Versão Mobile</title>
-    <!-- Lucide Icons -->
+    <title>Gestor de Património e Catálogos — Firebase</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -26,14 +25,13 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
             line-height: 1.5;
-            padding: 16px;
+            padding: 24px;
         }
 
         .container {
@@ -47,10 +45,10 @@
             justify-content: space-between;
             align-items: center;
             background: var(--card-bg);
-            padding: 16px 20px;
+            padding: 20px 28px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             border: 1px solid var(--border);
         }
 
@@ -62,36 +60,34 @@
 
         .logo-title i {
             color: var(--primary);
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
         }
 
         .logo-title h1 {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 700;
         }
 
         .actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px 14px;
-            font-size: 0.85rem;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
             font-weight: 600;
             border-radius: 8px;
             border: 1px solid transparent;
             cursor: pointer;
             transition: all 0.2s ease;
-            touch-action: manipulation;
         }
 
         .btn-primary { background-color: var(--primary); color: white; }
@@ -106,50 +102,35 @@
         .btn-outline { background-color: transparent; border-color: var(--border); color: var(--text-main); }
         .btn-outline:hover { background-color: #f1f5f9; }
 
-        /* Presets Bar / Categories (Scrollable on Mobile) */
+        /* Presets Bar */
         .presets-bar {
             background: var(--card-bg);
-            padding: 12px 16px;
+            padding: 16px 24px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .preset-buttons { 
-            display: flex; 
-            gap: 8px; 
-            overflow-x: auto;
-            white-space: nowrap;
-            padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .preset-buttons::-webkit-scrollbar {
-            height: 4px;
-        }
-        .preset-buttons::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
+        .preset-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
         .preset-chip {
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid var(--border);
             background: var(--bg-main);
             color: var(--text-main);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 6px;
-            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .preset-chip.active {
@@ -159,7 +140,7 @@
         }
 
         /* Controls */
-        .controls { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+        .controls { display: flex; gap: 16px; margin-bottom: 24px; align-items: center; }
 
         .search-box { position: relative; flex: 1; }
 
@@ -178,7 +159,7 @@
             padding: 10px 14px 10px 42px;
             border-radius: 8px;
             border: 1px solid var(--border);
-            font-size: 16px; /* Evita zoom automático no iOS */
+            font-size: 0.95rem;
             outline: none;
             background: var(--card-bg);
         }
@@ -186,8 +167,8 @@
         /* Content Layout */
         .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 20px;
         }
 
         .item-card {
@@ -202,7 +183,7 @@
 
         /* Gallery / Carousel in Card */
         .card-img-container {
-            height: 180px;
+            height: 190px;
             width: 100%;
             background-color: #f1f5f9;
             overflow: hidden;
@@ -226,14 +207,16 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: background 0.2s;
             z-index: 5;
         }
+        .card-img-nav:hover { background: rgba(15, 23, 42, 0.85); }
         .card-img-prev { left: 8px; }
         .card-img-next { right: 8px; }
 
@@ -241,29 +224,30 @@
             position: absolute;
             bottom: 8px;
             right: 8px;
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.7);
             color: white;
             font-size: 0.7rem;
             padding: 2px 8px;
             border-radius: 12px;
             font-weight: 600;
+            backdrop-filter: blur(2px);
         }
 
-        .card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+        .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
         .card-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .card-category { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+        .card-category { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
         
         .badge-liq { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
         .liq-alta { background: #d1fae5; color: #065f46; }
         .liq-media { background: #fef3c7; color: #92400e; }
         .liq-baixa { background: #fee2e2; color: #991b1b; }
 
-        .card-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
         .card-details { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; flex: 1; }
         .card-details p { margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border); }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
         .price-container { display: flex; flex-direction: column; }
-        .card-price { font-size: 1.1rem; font-weight: 700; color: var(--accent-green); }
+        .card-price { font-size: 1.15rem; font-weight: 700; color: var(--accent-green); }
         .card-unit-price { font-size: 0.75rem; color: var(--text-muted); }
         .card-actions { display: flex; gap: 6px; }
 
@@ -278,19 +262,19 @@
             align-items: center;
             justify-content: center;
         }
-        .btn-icon.delete-btn:hover { background: #fee2e2; color: var(--danger); }
+        .btn-icon:hover { background: #f1f5f9; color: var(--text-main); }
+        .btn-icon.delete-btn:hover { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
 
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(4px);
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none;
             transition: opacity 0.2s ease;
             z-index: 1000;
-            padding: 12px;
         }
 
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -298,88 +282,104 @@
         .modal {
             background: var(--card-bg);
             border-radius: var(--radius);
-            width: 100%; max-width: 650px; max-height: 90vh;
+            width: 90%; max-width: 650px; max-height: 90vh;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
         }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .close-modal { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted); padding: 0 8px; }
-        .form-group { margin-bottom: 14px; }
+        .modal-large { max-width: 850px; }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-        .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            font-size: 16px; /* Evita zoom em dispositivos móveis */
-        }
-        .form-row, .form-row-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
-
-        .attributes-section { background: var(--bg-main); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 14px; }
-        .attr-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .attr-row input { flex: 1; font-size: 16px; }
-
-        .empty-state { grid-column: 1 / -1; text-align: center; padding: 40px 16px; color: var(--text-muted); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .attributes-section { background: var(--bg-main); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .attr-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .attr-row input { flex: 1; }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
         #fileInput { display: none; }
 
-        /* Multiple Image Upload & Preview */
+        /* Multiple Image Upload & Preview in Modal */
         .images-upload-container {
             background: var(--bg-main);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .img-input-methods { display: flex; gap: 8px; flex-direction: column; }
-        .url-input-group { display: flex; gap: 6px; }
+        .img-input-methods {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
 
         .images-preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 10px;
             margin-top: 4px;
         }
 
         .img-preview-thumb {
             position: relative;
             width: 100%;
-            height: 65px;
+            height: 75px;
             border-radius: 6px;
             overflow: hidden;
             border: 1px solid var(--border);
             background: #e2e8f0;
         }
 
-        .img-preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .img-preview-remove {
             position: absolute;
-            top: 2px; right: 2px;
+            top: 2px;
+            right: 2px;
             background: rgba(239, 68, 68, 0.9);
-            color: white; border: none; border-radius: 50%;
-            width: 22px; height: 22px;
-            font-size: 12px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* Analytics Styles */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: var(--bg-main); padding: 14px; border-radius: var(--radius); border: 1px solid var(--border); }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-main); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
         
-        .analysis-section { margin-bottom: 20px; }
-        .analysis-section h3 { font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .analysis-section { margin-bottom: 24px; }
+        .analysis-section h3 { font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         
-        .progress-list { display: flex; flex-direction: column; gap: 10px; }
+        .progress-list { display: flex; flex-direction: column; gap: 12px; }
         .progress-item { display: flex; flex-direction: column; gap: 4px; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; }
-        .progress-bg { background: var(--border); height: 8px; border-radius: 999px; overflow: hidden; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; }
+        .progress-bg { background: var(--border); height: 10px; border-radius: 999px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
 
         .fill-primary { background: var(--primary); }
@@ -387,49 +387,66 @@
         .fill-yellow { background: #f59e0b; }
         .fill-red { background: var(--danger); }
 
-        /* --- REGRAS MÓVEIS (RESPONSIVIDADE) --- */
+        /* =========================================
+           OTIMIZAÇÃO PARA DISPOSITIVOS MÓVEIS (CSS)
+           ========================================= */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-
-            header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-                padding: 14px;
+            body { padding: 12px; }
+            header { flex-direction: column; padding: 16px; gap: 16px; border-radius: 8px; }
+            .logo-title { text-align: center; flex-direction: column; gap: 8px; }
+            
+            .actions { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 10px; 
+                width: 100%;
             }
-
-            .logo-title {
-                justify-content: center;
+            
+            #auth-container { 
+                grid-column: 1 / -1; 
+                flex-direction: column; 
+                width: 100%;
+                background: var(--bg-main);
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
             }
-
-            .actions {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
+            #auth-container input { width: 100% !important; margin-bottom: 6px; }
+            #auth-container button { width: 100%; justify-content: center; }
+            
+            #btn-login, #btn-logout { grid-column: 1 / -1; width: 100%; justify-content: center; }
+            
+            .actions .btn { padding: 10px 8px; justify-content: center; text-align: center; font-size: 0.85rem; }
+            button[onclick="openModal()"] { grid-column: 1 / -1; font-size: 1rem; padding: 12px; }
+            
+            .presets-bar { padding: 12px; border-radius: 8px; }
+            .preset-buttons { 
+                flex-wrap: nowrap; 
+                overflow-x: auto; 
+                padding-bottom: 8px; 
+                -webkit-overflow-scrolling: touch; /* Suavidade no scroll do iOS */
             }
+            .preset-buttons::-webkit-scrollbar { height: 4px; }
+            .preset-buttons::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-            .actions .btn {
-                font-size: 0.78rem;
-                padding: 8px 6px;
-            }
+            .content-grid { grid-template-columns: 1fr; gap: 16px; }
+            
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .card-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+            .card-actions .btn-icon { width: 100%; padding: 10px; }
 
-            .form-row, .form-row-3 {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .modal {
-                padding: 16px;
-                max-height: 94vh;
-            }
-
-            .attr-row {
-                flex-direction: row;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+            .modal { padding: 16px; width: 95%; max-height: 90vh; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; gap: 12px; }
+            .form-group { margin-bottom: 12px; }
+            
+            .img-input-methods { flex-direction: column; align-items: stretch; }
+            .url-input-group { flex-direction: column; }
+            .url-input-group button { width: 100%; }
+            
+            .attr-row { flex-direction: column; gap: 6px; margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; }
+            .attr-row button { align-self: stretch; width: 100%; margin-top: 4px; }
+            
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -441,66 +458,76 @@
                 <i data-lucide="landmark"></i>
                 <div>
                     <h1>Gestor de Património</h1>
-                    <p style="font-size: 0.75rem; color: var(--text-muted);">Imóveis, Veículos, Ativos e Outros</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Imóveis, Máquinas, Veículos, Ativos Financeiros e Outros</p>
                 </div>
             </div>
             <div class="actions">
-                <button id="btn-login" class="btn btn-primary" onclick="loginGoogle()">
-                    <i data-lucide="log-in" style="width: 16px;"></i> Entrar
+                <!-- Formulário de Email e Password com botão de Recuperar -->
+                <div id="auth-container" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="email" id="emailInput" placeholder="Email" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 150px; font-size: 0.9rem;">
+                    <input type="password" id="passwordInput" placeholder="Password" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 120px; font-size: 0.9rem;">
+                    <button class="btn btn-primary" onclick="loginEmail()" style="padding: 8px 12px;"><i data-lucide="mail"></i> Entrar</button>
+                    <button class="btn btn-outline" onclick="registerEmail()" style="padding: 8px 12px;">Registar</button>
+                    <button class="btn btn-outline" onclick="resetPasswordEmail()" style="padding: 8px 12px;" title="Recuperar Password"><i data-lucide="key"></i> Recuperar</button>
+                </div>
+                
+                <button id="btn-login" class="btn btn-outline" onclick="loginGoogle()">
+                    <i data-lucide="log-in"></i> Google
                 </button>
                 <button id="btn-logout" class="btn btn-outline" onclick="logoutGoogle()" style="display: none;">
-                    <i data-lucide="log-out" style="width: 16px;"></i> Sair
+                    <i data-lucide="log-out"></i> Sair
                 </button>
+                
                 <button class="btn btn-analytics" onclick="openAnalyticsModal()">
-                    <i data-lucide="pie-chart" style="width: 16px;"></i> Análise
+                    <i data-lucide="pie-chart"></i> Análise
                 </button>
                 <button class="btn btn-outline" onclick="triggerImport()">
-                    <i data-lucide="upload" style="width: 16px;"></i> Importar
+                    <i data-lucide="upload"></i> Import XML
                 </button>
                 <button class="btn btn-outline" onclick="exportXML()">
-                    <i data-lucide="download" style="width: 16px;"></i> XML
+                    <i data-lucide="download"></i> Export XML
                 </button>
                 <button class="btn btn-success" onclick="exportCSV()">
-                    <i data-lucide="file-spreadsheet" style="width: 16px;"></i> CSV
+                    <i data-lucide="file-spreadsheet"></i> Export CSV
                 </button>
-                <button class="btn btn-primary" style="grid-column: span 2;" onclick="openModal()">
-                    <i data-lucide="plus" style="width: 16px;"></i> Novo Item
+                <button class="btn btn-primary" onclick="openModal()">
+                    <i data-lucide="plus"></i> Novo Item
                 </button>
                 <input type="file" id="fileInput" accept=".xml" onchange="importXML(event)">
             </div>
         </header>
 
         <div class="presets-bar">
-            <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Categorias (Deslize &rarr;):</span>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Filtrar por Categoria:</span>
             <div class="preset-buttons" id="categoryFilters">
                 <button class="preset-chip active" onclick="filterCategory('all')">Todos</button>
-                <button class="preset-chip" onclick="filterCategory('Imóveis Urbanos')"><i data-lucide="building" style="width: 14px;"></i> Urbanos</button>
-                <button class="preset-chip" onclick="filterCategory('Imóveis Rústicos')"><i data-lucide="trees" style="width: 14px;"></i> Rústicos</button>
-                <button class="preset-chip" onclick="filterCategory('Máquinas')"><i data-lucide="cog" style="width: 14px;"></i> Máquinas</button>
-                <button class="preset-chip" onclick="filterCategory('Móveis')"><i data-lucide="armchair" style="width: 14px;"></i> Móveis</button>
-                <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car" style="width: 14px;"></i> Automóveis</button>
-                <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins" style="width: 14px;"></i> Moedas</button>
-                <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem" style="width: 14px;"></i> Joias</button>
-                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up" style="width: 14px;"></i> Finanças</button>
-                <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box" style="width: 14px;"></i> Outros</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Urbanos')"><i data-lucide="building"></i> Imóveis Urbanos</button>
+                <button class="preset-chip" onclick="filterCategory('Imóveis Rústicos')"><i data-lucide="trees"></i> Imóveis Rústicos</button>
+                <button class="preset-chip" onclick="filterCategory('Máquinas')"><i data-lucide="cog"></i> Máquinas</button>
+                <button class="preset-chip" onclick="filterCategory('Móveis')"><i data-lucide="armchair"></i> Móveis</button>
+                <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car"></i> Automóveis</button>
+                <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
+                <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem"></i> Joias & Metais</button>
+                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Fin.</button>
+                <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box"></i> Outros</button>
             </div>
         </div>
 
         <div class="controls">
             <div class="search-box">
                 <i data-lucide="search"></i>
-                <input type="text" id="searchInput" placeholder="Pesquisar património..." oninput="renderItems()">
+                <input type="text" id="searchInput" placeholder="Pesquisar por título, categoria ou atributos..." oninput="renderItems()">
             </div>
         </div>
 
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
-    <!-- Modal Form (Adicionar/Editar Item) -->
+    <!-- Modal Novo Item -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle" style="font-size: 1.1rem;">Adicionar Item</h2>
+                <h2 id="modalTitle">Adicionar Item</h2>
                 <button class="close-modal" type="button" onclick="closeModal()">&times;</button>
             </div>
             <form id="itemForm" onsubmit="saveItem(event)">
@@ -509,7 +536,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="itemTitle">Título / Nome *</label>
-                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro / Carro">
+                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro">
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Categoria *</label>
@@ -529,35 +556,34 @@
 
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label for="itemPrice">Preço (€) *</label>
+                        <label for="itemPrice">Preço Unitário (€) *</label>
                         <input type="number" step="0.01" id="itemPrice" required placeholder="0.00">
                     </div>
                     <div class="form-group">
-                        <label for="itemQuantity">Qtd. *</label>
+                        <label for="itemQuantity">Quantidade *</label>
                         <input type="number" step="1" min="1" id="itemQuantity" value="1" required>
                     </div>
                     <div class="form-group">
                         <label for="itemLiquidity">Liquidez *</label>
                         <select id="itemLiquidity" required>
-                            <option value="Alta">Alta</option>
-                            <option value="Média">Média</option>
-                            <option value="Baixa">Baixa</option>
+                            <option value="Alta">Alta (Imediata / Dias)</option>
+                            <option value="Média">Média (Semanas / Meses)</option>
+                            <option value="Baixa">Baixa (Longo Prazo / Anos)</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Gestão de Múltiplas Fotos -->
                 <div class="form-group">
-                    <label>Fotos (Múltiplas)</label>
+                    <label>Fotos do Item (Permite Múltiplas)</label>
                     <div class="images-upload-container">
                         <div class="img-input-methods">
                             <input type="file" id="itemLocalImages" accept="image/*" multiple onchange="handleMultipleFiles(event)" style="display: none;">
-                            <button type="button" class="btn btn-outline" style="width: 100%;" onclick="document.getElementById('itemLocalImages').click()">
-                                <i data-lucide="image-plus" style="width: 16px;"></i> Tirar Foto / Galeria
+                            <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="document.getElementById('itemLocalImages').click()">
+                                <i data-lucide="image-plus" style="width: 16px;"></i> Carregar Fotos do PC/Tel
                             </button>
                             <div class="url-input-group">
-                                <input type="url" id="itemImageUrlInput" placeholder="https://link-da-imagem.com/foto.jpg">
-                                <button type="button" class="btn btn-outline" onclick="addUrlImage()">+ URL</button>
+                                <input type="url" id="itemImageUrlInput" placeholder="https://exemplo.com/foto.jpg" style="font-size: 0.85rem; padding: 6px 10px;">
+                                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addUrlImage()">+ Add URL</button>
                             </div>
                         </div>
                         <div class="images-preview-grid" id="imagesPreviewContainer"></div>
@@ -566,18 +592,18 @@
 
                 <div class="form-group">
                     <label for="itemDescription">Descrição / Notas</label>
-                    <textarea id="itemDescription" rows="2" placeholder="Notas adicionais..."></textarea>
+                    <textarea id="itemDescription" rows="3" placeholder="Notas adicionais, estado, localização exata..."></textarea>
                 </div>
 
                 <div class="attributes-section">
-                    <h4 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem;">
-                        Atributos da Categoria
-                        <button type="button" class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem;" onclick="addAttrRow()">+ Campo</button>
+                    <h4 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        Atributos Específicos
+                        <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Campo</button>
                     </h4>
                     <div id="attributesContainer"></div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                     <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btnSaveSubmit">Salvar Item</button>
                 </div>
@@ -585,11 +611,11 @@
         </div>
     </div>
 
-    <!-- Modal Análise Financeira -->
+    <!-- Modal Analytics -->
     <div class="modal-overlay" id="analyticsModal">
-        <div class="modal">
+        <div class="modal modal-large">
             <div class="modal-header">
-                <h2 style="font-size: 1.1rem;">Análise Financeira</h2>
+                <h2>Análise Financeira</h2>
                 <button class="close-modal" type="button" onclick="closeAnalyticsModal()">&times;</button>
             </div>
             
@@ -603,24 +629,35 @@
                     <div class="stat-value" id="statTotalItems">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Liquidez Alta</div>
+                    <div class="stat-label">Liquidez Imediata (Alta)</div>
                     <div class="stat-value" style="color: var(--accent-green);" id="statHighLiquidity">€ 0.00</div>
                 </div>
             </div>
 
             <div class="analysis-section">
-                <h3><i data-lucide="pie-chart" style="width: 16px;"></i> Por Categoria</h3>
+                <h3><i data-lucide="pie-chart" style="width: 18px;"></i> Distribuição por Categoria</h3>
                 <div class="progress-list" id="categoryAnalyticsList"></div>
             </div>
 
             <div class="analysis-section">
-                <h3><i data-lucide="droplet" style="width: 16px;"></i> Por Liquidez</h3>
+                <h3><i data-lucide="droplet" style="width: 18px;"></i> Perfil de Liquidez</h3>
                 <div class="progress-list" id="liquidityAnalyticsList"></div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
                 <button type="button" class="btn btn-outline" onclick="closeAnalyticsModal()">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar Item Partilhado -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Item Partilhado</h2>
+                <button class="close-modal" type="button" onclick="document.getElementById('shareModal').classList.remove('active'); window.history.replaceState({}, document.title, window.location.pathname);">&times;</button>
+            </div>
+            <div id="shareContent"></div>
         </div>
     </div>
 
@@ -633,7 +670,11 @@
             signOut, 
             onAuthStateChanged,
             setPersistence,
-            browserLocalPersistence
+            browserLocalPersistence,
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,     
+            sendEmailVerification,
+            sendPasswordResetEmail          
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
@@ -641,9 +682,11 @@
             setDoc, 
             deleteDoc, 
             onSnapshot, 
-            collection 
+            collection,
+            getDoc                          
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAZJLq_lahgFfIdUZM1ieVumLsP50taeZo",
             authDomain: "meu-inventario-5b10b.firebaseapp.com",
@@ -662,18 +705,18 @@
         let unsubscribeListener = null;
 
         let selectedCategory = 'all';
-        let currentModalImages = [];
-        let cardImageIndexes = {};
+        let currentModalImages = []; 
+        let cardImageIndexes = {}; 
 
         const categoryPresets = {
-            'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização'],
-            'Imóveis Rústicos': ['Área (ha/m²)', 'Tipo Terreno', 'Localização'],
-            'Máquinas': ['Marca/Modelo', 'Ano', 'N.º Série'],
-            'Móveis': ['Material', 'Estado'],
-            'Automóveis': ['Marca/Modelo', 'Ano', 'Km', 'Matrícula'],
-            'Moedas': ['Valor Facial', 'Ano', 'Metal'],
-            'Joias e metais preciosos': ['Metal', 'Pureza', 'Peso (g)'],
-            'Ativos financeiros': ['Tipo Ativo', 'Instituição', 'Rentabilidade'],
+            'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização', 'Certificado Energético'],
+            'Imóveis Rústicos': ['Área Total (ha/m²)', 'Tipo de Terreno', 'Localização', 'Artigo Rústico'],
+            'Máquinas': ['Marca/Modelo', 'Ano de Fabrico', 'Potência', 'N.º de Série'],
+            'Móveis': ['Material', 'Dimensões', 'Estado de Conservação', 'Estilo/Época'],
+            'Automóveis': ['Marca/Modelo', 'Ano', 'Quilometragem (km)', 'Combustível', 'Matrícula'],
+            'Moedas': ['Valor Facial', 'Ano', 'Metal/Liga', 'Estado de Conservação'],
+            'Joias e metais preciosos': ['Tipo de Metal', 'Pureza/Toque', 'Peso (g)', 'Pedras Preciosas'],
+            'Ativos financeiros': ['Tipo de Ativo', 'Emissor/Instituição', 'Rentabilidade/Taxa', 'Data de Maturidade'],
             'Outros': ['Estado', 'Origem']
         };
 
@@ -700,15 +743,9 @@
                         let width = img.width;
                         let height = img.height;
                         if (width > height) {
-                            if (width > maxWidth) {
-                                height = Math.round((height * maxWidth) / width);
-                                width = maxWidth;
-                            }
+                            if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
                         } else {
-                            if (height > maxHeight) {
-                                width = Math.round((width * maxHeight) / height);
-                                height = maxHeight;
-                            }
+                            if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
                         }
                         const canvas = document.createElement('canvas');
                         canvas.width = width;
@@ -723,12 +760,15 @@
             });
         }
 
+        // Auth Monitor
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
+            const authContainer = document.getElementById('auth-container');
 
-            if (user) {
+            if (user && user.emailVerified) {
+                if (authContainer) authContainer.style.display = 'none';
                 if (btnLogin) btnLogin.style.display = 'none';
                 if (btnLogout) btnLogout.style.display = 'inline-flex';
 
@@ -738,8 +778,16 @@
                 unsubscribeListener = onSnapshot(userItemsRef, (snapshot) => {
                     catalog = snapshot.docs.map(doc => doc.data());
                     renderItems();
-                }, (err) => console.error("Firestore:", err));
+                }, (err) => {
+                    console.error("Erro no Firestore:", err);
+                });
+            } else if (user && !user.emailVerified) {
+                if(user.providerData.some(p => p.providerId === 'password')) {
+                    signOut(auth);
+                    alert("Por favor, verifique o seu email (caixa de entrada ou spam) antes de iniciar sessão.");
+                }
             } else {
+                if (authContainer) authContainer.style.display = 'flex';
                 if (btnLogin) btnLogin.style.display = 'inline-flex';
                 if (btnLogout) btnLogout.style.display = 'none';
                 catalog = [];
@@ -748,6 +796,50 @@
             }
         });
 
+        // Funções de Auth Email/Password
+        window.registerEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            if(!email || !password) return alert("Preencha email e password.");
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
+                await signOut(auth);
+                alert("Conta criada com sucesso! Foi enviado um link de verificação para o seu email. Verifique-o antes de entrar.");
+            } catch(err) {
+                alert("Erro ao registar: " + err.message);
+            }
+        };
+
+        window.loginEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            if(!email || !password) return alert("Preencha email e password.");
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth);
+                    alert("Ainda não verificou o seu email. Por favor, consulte a sua caixa de entrada.");
+                }
+            } catch(err) {
+                alert("Erro ao entrar (Verifique as credenciais): " + err.message);
+            }
+        };
+
+        window.resetPasswordEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            if(!email) return alert("Por favor, preencha o campo do Email para recuperar a password.");
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Email de recuperação enviado! Verifique a sua caixa de entrada e a pasta de spam.");
+            } catch(err) {
+                alert("Erro ao enviar email de recuperação: " + err.message);
+            }
+        };
+
+        // Auth Google Original
         window.loginGoogle = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
@@ -755,7 +847,7 @@
                 provider.setCustomParameters({ prompt: 'select_account' });
                 await signInWithPopup(auth, provider);
             } catch (err) {
-                alert("Erro ao entrar: " + err.message);
+                alert("Erro ao iniciar sessão com o Google: " + err.message);
             }
         };
 
@@ -780,7 +872,7 @@
                 grid.innerHTML = `
                     <div class="empty-state">
                         <h3>Sessão não iniciada</h3>
-                        <p>Inicie sessão com o Google para carregar os seus dados.</p>
+                        <p>Inicie sessão ou crie conta para carregar e gerir os seus itens na nuvem.</p>
                     </div>
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -801,8 +893,8 @@
             if (filtered.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
-                        <h3>Sem itens</h3>
-                        <p>Nenhum registo encontrado.</p>
+                        <h3>Nenhum item encontrado</h3>
+                        <p>Tente ajustar a sua pesquisa ou adicione novos itens ao seu património.</p>
                     </div>
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -811,7 +903,9 @@
 
             grid.innerHTML = filtered.map(item => {
                 let itemImages = item.images || [];
-                if (itemImages.length === 0 && item.image) itemImages = [item.image];
+                if (itemImages.length === 0 && item.image) {
+                    itemImages = [item.image];
+                }
 
                 const currentImgIdx = cardImageIndexes[item.id] || 0;
                 const imgUrl = itemImages[currentImgIdx] || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
@@ -849,11 +943,11 @@
                         <div class="card-body">
                             <div class="card-header-meta">
                                 <span class="card-category">${escapeHtml(item.category)}</span>
-                                <span class="badge-liq ${liqClass}">${escapeHtml(item.liquidity || 'Média')}</span>
+                                <span class="badge-liq ${liqClass}">Liq. ${escapeHtml(item.liquidity || 'Média')}</span>
                             </div>
                             <h3 class="card-title">${escapeHtml(item.title)}</h3>
                             <div class="card-details">
-                                <p><span>Qtd:</span> <strong>${quantity}</strong></p>
+                                <p><span>Quantidade:</span> <strong>${quantity}</strong></p>
                                 ${attrsHtml}
                             </div>
                             <div class="card-footer">
@@ -862,8 +956,9 @@
                                     ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
                                 </div>
                                 <div class="card-actions">
-                                    <button class="btn-icon" type="button" onclick="editItem('${safeId}')"><i data-lucide="edit-2" style="width: 16px;"></i></button>
-                                    <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')"><i data-lucide="trash-2" style="width: 16px;"></i></button>
+                                    <button class="btn-icon" type="button" onclick="shareItem('${safeId}')" title="Partilhar"><i data-lucide="share-2"></i></button>
+                                    <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
+                                    <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -874,21 +969,76 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
+        // Partilha
+        window.shareItem = function(id) {
+            if(!currentUser) return;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?shareUser=${currentUser.uid}&shareItem=${id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("O link foi copiado!\nQualquer pessoa que abra este link verá os detalhes do item.");
+            }).catch(err => {
+                alert("Erro ao copiar. Segue o link:\n" + shareUrl);
+            });
+        };
+
+        // Intercetação do Link de Partilha
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            const params = new URLSearchParams(window.location.search);
+            const sUser = params.get('shareUser');
+            const sItem = params.get('shareItem');
+            
+            if(sUser && sItem) {
+                try {
+                    const docRef = doc(db, "usuarios", sUser, "itens", sItem);
+                    const docSnap = await getDoc(docRef);
+                    if(docSnap.exists()) {
+                        const item = docSnap.data();
+                        
+                        let imgs = item.images || [];
+                        if (imgs.length === 0 && item.image) imgs = [item.image];
+                        const imgUrl = imgs[0] || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                        
+                        const attrsHtml = Object.entries(item.attrs || {})
+                            .map(([key, val]) => `<p style="margin-bottom:6px;"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</p>`)
+                            .join('');
+
+                        document.getElementById('shareContent').innerHTML = `
+                            <div style="background:#f8fafc; padding:12px; border-radius:8px; text-align:center; margin-bottom:16px;">
+                                <img src="${escapeHtml(imgUrl)}" style="max-width:100%; max-height:250px; border-radius:6px; object-fit:contain;">
+                            </div>
+                            <h3 style="color:var(--primary); margin-bottom:8px;">${escapeHtml(item.title)}</h3>
+                            <div style="font-size:0.95rem;">
+                                <p style="margin-bottom:6px;"><strong>Categoria:</strong> ${escapeHtml(item.category)}</p>
+                                <p style="margin-bottom:6px;"><strong>Preço:</strong> €${parseFloat(item.price||0).toFixed(2)}</p>
+                                <p style="margin-bottom:6px;"><strong>Quantidade:</strong> ${escapeHtml(item.quantity)}</p>
+                                <p style="margin-bottom:6px;"><strong>Descrição:</strong> ${escapeHtml(item.description || 'N/A')}</p>
+                            </div>
+                            ${attrsHtml ? `<hr style="margin: 16px 0; border:none; border-top:1px solid var(--border);"><div style="font-size:0.95rem;">${attrsHtml}</div>` : ''}
+                        `;
+                        document.getElementById('shareModal').classList.add('active');
+                    } else {
+                        alert("Item partilhado não encontrado ou já foi apagado.");
+                    }
+                } catch(err) {
+                    console.error("Erro a carregar partilha:", err);
+                    alert("Erro ao carregar o item partilhado. Confirme que alterou as Regras na Consola da Firebase.");
+                }
+            }
+        });
+
+        // Demais Funções de Lógica e CRUD
         window.navigateCardImage = function(itemId, direction, event) {
             if (event) event.stopPropagation();
             const item = catalog.find(i => String(i.id) === String(itemId));
             if (!item) return;
-
             let imgs = item.images || [];
             if (imgs.length === 0 && item.image) imgs = [item.image];
             if (imgs.length <= 1) return;
-
             let currentIdx = cardImageIndexes[itemId] || 0;
             currentIdx += direction;
-
             if (currentIdx < 0) currentIdx = imgs.length - 1;
             if (currentIdx >= imgs.length) currentIdx = 0;
-
             cardImageIndexes[itemId] = currentIdx;
             renderItems();
         };
@@ -896,14 +1046,11 @@
         window.handleMultipleFiles = async function(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
-
             for (let file of files) {
                 try {
                     const compressed = await compressImage(file);
                     currentModalImages.push(compressed);
-                } catch (err) {
-                    console.error("Compressão:", err);
-                }
+                } catch (err) { console.error("Erro ao comprimir:", err); }
             }
             event.target.value = '';
             renderImagesPreview();
@@ -927,16 +1074,14 @@
         function renderImagesPreview() {
             const container = document.getElementById('imagesPreviewContainer');
             if (!container) return;
-
             if (currentModalImages.length === 0) {
-                container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted); grid-column: 1/-1;">Sem fotos.</span>';
+                container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); grid-column: 1/-1;">Nenhuma foto adicionada.</span>';
                 return;
             }
-
             container.innerHTML = currentModalImages.map((src, idx) => `
                 <div class="img-preview-thumb">
-                    <img src="${escapeHtml(src)}" alt="Thumb ${idx + 1}" onerror="this.src='https://via.placeholder.com/100?text=Erro'">
-                    <button type="button" class="img-preview-remove" onclick="removeModalImage(${idx})">&times;</button>
+                    <img src="${escapeHtml(src)}" alt="Miniatura ${idx + 1}" onerror="this.src='https://via.placeholder.com/100?text=Erro'">
+                    <button type="button" class="img-preview-remove" onclick="removeModalImage(${idx})" title="Remover Foto">&times;</button>
                 </div>
             `).join('');
         }
@@ -960,36 +1105,25 @@
                     document.getElementById('itemLiquidity').value = item.liquidity || 'Média';
                     document.getElementById('itemDescription').value = item.description || '';
 
-                    if (item.images && item.images.length > 0) {
-                        currentModalImages = [...item.images];
-                    } else if (item.image) {
-                        currentModalImages = [item.image];
-                    }
-
+                    if (item.images && item.images.length > 0) { currentModalImages = [...item.images]; } 
+                    else if (item.image) { currentModalImages = [item.image]; }
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
                 }
             } else {
-                document.getElementById('modalTitle').textContent = 'Novo Item';
+                document.getElementById('modalTitle').textContent = 'Adicionar Item';
                 document.getElementById('itemId').value = '';
                 handleCategoryChange();
             }
-
             renderImagesPreview();
             modal.classList.add('active');
         };
 
-        window.closeModal = function() {
-            document.getElementById('itemModal').classList.remove('active');
-        };
+        window.closeModal = function() { document.getElementById('itemModal').classList.remove('active'); };
 
         window.handleCategoryChange = function() {
             const cat = document.getElementById('itemCategory').value;
-            
             if (!document.getElementById('itemId').value) {
-                if (categoryDefaultLiquidity[cat]) {
-                    document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
-                }
-
+                if (categoryDefaultLiquidity[cat]) document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
                 const container = document.getElementById('attributesContainer');
                 container.innerHTML = '';
                 (categoryPresets[cat] || []).forEach(attrName => addAttrRow(attrName, ''));
@@ -1001,17 +1135,17 @@
             const row = document.createElement('div');
             row.className = 'attr-row';
             row.innerHTML = `
-                <input type="text" placeholder="Campo" class="attr-key" value="${escapeHtml(key)}">
-                <input type="text" placeholder="Valor" class="attr-value" value="${escapeHtml(val)}">
-                <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()">&times;</button>
+                <input type="text" placeholder="Atributo (ex: Tipologia)" class="attr-key" value="${escapeHtml(key)}">
+                <input type="text" placeholder="Valor (ex: T3 / 100m²)" class="attr-value" value="${escapeHtml(val)}">
+                <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()"><i data-lucide="trash"></i> Eliminar</button>
             `;
             container.appendChild(row);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
         window.saveItem = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
-
+            if (!currentUser) return alert("Sessão não detetada. Por favor, volte a iniciar sessão.");
             const btnSave = document.getElementById('btnSaveSubmit');
             btnSave.disabled = true;
             btnSave.textContent = 'A guardar...';
@@ -1024,11 +1158,10 @@
                 const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
                 const liquidity = document.getElementById('itemLiquidity').value || 'Média';
                 const description = document.getElementById('itemDescription').value || '';
-
                 const images = [...currentModalImages];
                 const primaryImage = images[0] || '';
-
                 const attrs = {};
+                
                 const keys = document.querySelectorAll('.attr-key');
                 const vals = document.querySelectorAll('.attr-value');
                 keys.forEach((kInput, index) => {
@@ -1037,34 +1170,23 @@
                     if (k) attrs[k] = v;
                 });
 
-                const newItem = { 
-                    id, 
-                    title, 
-                    category, 
-                    price, 
-                    quantity, 
-                    liquidity, 
-                    images, 
-                    image: primaryImage,
-                    description, 
-                    attrs 
-                };
-
+                const newItem = { id, title, category, price, quantity, liquidity, images, image: primaryImage, description, attrs };
                 const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                 await setDoc(docRef, newItem);
 
                 selectedCategory = 'all';
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) searchInput.value = '';
+                document.querySelectorAll('.preset-chip').forEach(btn => btn.classList.toggle('active', btn.textContent.includes('Todos')));
 
                 const existingIdx = catalog.findIndex(i => String(i.id) === String(id));
-                if (existingIdx >= 0) catalog[existingIdx] = newItem;
-                else catalog.push(newItem);
-
+                if (existingIdx >= 0) catalog[existingIdx] = newItem; else catalog.push(newItem);
+                
                 renderItems();
                 closeModal();
             } catch (err) {
-                alert("Erro ao guardar: " + err.message);
+                console.error("Erro ao guardar:", err);
+                alert("Erro ao guardar item no Firebase: " + err.message);
             } finally {
                 btnSave.disabled = false;
                 btnSave.textContent = 'Salvar Item';
@@ -1075,35 +1197,26 @@
 
         window.deleteItem = async function(id) {
             if (!currentUser) return;
-            if (confirm('Eliminar este item?')) {
+            if (confirm('Tem a certeza que pretende eliminar este item?')) {
                 try {
                     const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                     await deleteDoc(docRef);
-                } catch (err) {
-                    alert("Erro ao eliminar: " + err.message);
-                }
+                } catch (err) { alert("Erro ao eliminar o item: " + err.message); }
             }
         };
 
         window.openAnalyticsModal = function() {
             const modal = document.getElementById('analyticsModal');
-            let totalPortfolioValue = 0;
-            let totalItemsCount = 0;
-            const categoryTotals = {};
-            const categoryCounts = {};
-            const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+            let totalPortfolioValue = 0; let totalItemsCount = 0;
+            const categoryTotals = {}; const categoryCounts = {}; const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
 
             catalog.forEach(item => {
                 const qty = parseInt(item.quantity) || 1;
                 const price = parseFloat(item.price) || 0;
                 const itemTotal = price * qty;
-
-                totalPortfolioValue += itemTotal;
-                totalItemsCount += qty;
-
+                totalPortfolioValue += itemTotal; totalItemsCount += qty;
                 categoryTotals[item.category] = (categoryTotals[item.category] || 0) + itemTotal;
                 categoryCounts[item.category] = (categoryCounts[item.category] || 0) + qty;
-
                 const liq = item.liquidity || 'Média';
                 liquidityTotals[liq] = (liquidityTotals[liq] || 0) + itemTotal;
             });
@@ -1114,63 +1227,34 @@
 
             const catContainer = document.getElementById('categoryAnalyticsList');
             const categories = Object.keys(categoryPresets);
-            
             catContainer.innerHTML = categories.map(cat => {
-                const val = categoryTotals[cat] || 0;
-                const qty = categoryCounts[cat] || 0;
+                const val = categoryTotals[cat] || 0; const qty = categoryCounts[cat] || 0;
                 const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${cat} (${qty})</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill fill-primary" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
+                return `<div class="progress-item"><div class="progress-info"><span>${cat} (${qty} un)</span><span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span></div><div class="progress-bg"><div class="progress-fill fill-primary" style="width: ${pct}%;"></div></div></div>`;
             }).join('');
 
             const liqContainer = document.getElementById('liquidityAnalyticsList');
             const liqLevels = [
-                { key: 'Alta', label: 'Alta (Cash/Ações/Metais)', fillClass: 'fill-green' },
-                { key: 'Média', label: 'Média (Veículos/Móveis)', fillClass: 'fill-yellow' },
+                { key: 'Alta', label: 'Alta (Dinheiro/Ações)', fillClass: 'fill-green' },
+                { key: 'Média', label: 'Média (Veículos/Máquinas)', fillClass: 'fill-yellow' },
                 { key: 'Baixa', label: 'Baixa (Imóveis/Terrenos)', fillClass: 'fill-red' }
             ];
-
             liqContainer.innerHTML = liqLevels.map(l => {
                 const val = liquidityTotals[l.key] || 0;
                 const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${l.label}</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
+                return `<div class="progress-item"><div class="progress-info"><span>${l.label}</span><span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span></div><div class="progress-bg"><div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div></div></div>`;
             }).join('');
 
             modal.classList.add('active');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        window.closeAnalyticsModal = function() {
-            document.getElementById('analyticsModal').classList.remove('active');
-        };
+        window.closeAnalyticsModal = function() { document.getElementById('analyticsModal').classList.remove('active'); };
 
         window.exportXML = function() {
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
             catalog.forEach(item => {
-                let imgs = item.images || [];
-                if (imgs.length === 0 && item.image) imgs = [item.image];
-
+                let imgs = item.images || []; if (imgs.length === 0 && item.image) imgs = [item.image];
                 xml += '  <item>\n';
                 xml += `    <id>${escapeXml(item.id)}</id>\n`;
                 xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
@@ -1178,91 +1262,81 @@
                 xml += `    <preco>${item.price}</preco>\n`;
                 xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
                 xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
+                xml += `    <imagem>${escapeXml(item.image || (imgs[0] || ''))}</imagem>\n`;
+                xml += '    <imagens>\n'; imgs.forEach(img => xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`); xml += '    </imagens>\n';
                 xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
+                xml += '    <atributos>\n'; Object.entries(item.attrs || {}).forEach(([k, v]) => xml += `      <atributo nome="${escapeXml(k)}">${escapeXml(v)}</atributo>\n`); xml += '    </atributos>\n';
                 xml += '  </item>\n';
             });
             xml += '</patrimonio>';
-
             downloadFile(xml, 'patrimonio.xml', 'application/xml');
         };
 
         window.exportCSV = function() {
-            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez'];
-            let csvRows = [headers.join(';')];
-
+            const allAttrKeys = new Set();
+            catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
+            const attrKeysArr = Array.from(allAttrKeys);
+            let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Fotos (URLs/Base64)', 'Descrição', ...attrKeysArr];
+            let csvRows = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';')];
             catalog.forEach(item => {
-                const qty = parseInt(item.quantity) || 1;
-                const price = parseFloat(item.price) || 0;
-                let row = [item.id, item.title, item.category, price, qty, price * qty, item.liquidity || 'Média'];
-                csvRows.push(row.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';'));
+                const qty = parseInt(item.quantity) || 1; const price = parseFloat(item.price) || 0;
+                let imgs = item.images || []; if (imgs.length === 0 && item.image) imgs = [item.image];
+                let row = [item.id, item.title, item.category, price, qty, price * qty, item.liquidity || 'Média', imgs.join(' | '), item.description, ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')];
+                csvRows.push(row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(';'));
             });
-
             downloadFile('\uFEFF' + csvRows.join('\n'), 'patrimonio.csv', 'text/csv;charset=utf-8;');
         };
 
         window.triggerImport = function() { document.getElementById('fileInput').click(); };
 
         window.importXML = function(event) {
-            if (!currentUser) return;
+            if (!currentUser) return alert("Entre na sua conta para importar para a nuvem.");
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
                     const items = xmlDoc.getElementsByTagName("item");
-
                     for (let i = 0; i < items.length; i++) {
                         const el = items[i];
                         const id = getXmlText(el, "id") || Date.now().toString() + i;
-                        const title = getXmlText(el, "titulo") || 'Sem Título';
-                        const category = getXmlText(el, "categoria") || 'Outros';
-                        const price = parseFloat(getXmlText(el, "preco")) || 0;
-                        const quantity = parseInt(getXmlText(el, "quantidade")) || 1;
+                        const singleImg = getXmlText(el, "imagem") || '';
+                        const images = [];
+                        el.querySelectorAll("imagens > imagem_url").forEach(node => { if (node.textContent) images.push(node.textContent); });
+                        if (images.length === 0 && singleImg) images.push(singleImg);
+                        const attrs = {};
+                        el.querySelectorAll("atributo").forEach(node => { const key = node.getAttribute("nome"); if (key) attrs[key] = node.textContent; });
 
-                        const importedItem = { id, title, category, price, quantity, liquidity: 'Média', images: [], image: '', description: '', attrs: {} };
-                        const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
-                        await setDoc(docRef, importedItem);
+                        const importedItem = { 
+                            id, 
+                            title: getXmlText(el, "titulo") || 'Sem Título', 
+                            category: getXmlText(el, "categoria") || 'Outros', 
+                            price: parseFloat(getXmlText(el, "preco")) || 0, 
+                            quantity: parseInt(getXmlText(el, "quantidade")) || 1, 
+                            liquidity: getXmlText(el, "liquidez") || 'Média', 
+                            images, image: images[0] || '', 
+                            description: getXmlText(el, "descricao") || '', 
+                            attrs 
+                        };
+                        await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), importedItem);
                     }
-                    alert(`${items.length} itens importados!`);
-                } catch (err) {
-                    alert('Erro ao importar XML.');
-                }
+                    alert(`${items.length} itens importados com sucesso!`);
+                } catch (err) { alert('Erro ao processar ficheiro XML.'); }
             };
             reader.readAsText(file);
             event.target.value = '';
         };
 
-        function getXmlText(parent, tagName) {
-            const node = parent.getElementsByTagName(tagName)[0];
-            return node ? node.textContent : '';
-        }
-
-        function escapeXml(str) {
-            return String(str || '').replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
-        }
-
-        function escapeHtml(str) {
-            return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        }
-
+        function getXmlText(parent, tagName) { const node = parent.getElementsByTagName(tagName)[0]; return node ? node.textContent : ''; }
+        function escapeXml(str) { return String(str || '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c])); }
+        function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match])); }
         function downloadFile(content, fileName, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const blob = new Blob([content], { type: mimeType }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = fileName;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
     </script>
 </body>
 </html>
