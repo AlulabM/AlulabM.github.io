@@ -2,11 +2,9 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Património e Catálogos — Firebase</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Adicionado html2canvas para gerar a imagem de partilha -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -132,7 +130,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
         }
 
         .preset-chip.active {
@@ -299,7 +296,7 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
         .attributes-section { background: var(--bg-main); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
-        .attr-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .attr-row { display: flex; gap: 10px; margin-bottom: 8px; }
         .attr-row input { flex: 1; }
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
         #fileInput { display: none; }
@@ -388,68 +385,6 @@
         .fill-green { background: var(--accent-green); }
         .fill-yellow { background: #f59e0b; }
         .fill-red { background: var(--danger); }
-
-        /* =========================================
-           OTIMIZAÇÃO PARA DISPOSITIVOS MÓVEIS (CSS)
-           ========================================= */
-        @media (max-width: 768px) {
-            body { padding: 12px; }
-            header { flex-direction: column; padding: 16px; gap: 16px; border-radius: 8px; }
-            .logo-title { text-align: center; flex-direction: column; gap: 8px; }
-            
-            .actions { 
-                display: grid; 
-                grid-template-columns: 1fr 1fr; 
-                gap: 10px; 
-                width: 100%;
-            }
-            
-            #auth-container { 
-                grid-column: 1 / -1; 
-                flex-direction: column; 
-                width: 100%;
-                background: var(--bg-main);
-                padding: 12px;
-                border-radius: 8px;
-                border: 1px solid var(--border);
-            }
-            #auth-container input { width: 100% !important; margin-bottom: 6px; }
-            #auth-container button { width: 100%; justify-content: center; }
-            
-            #btn-login, #btn-logout { grid-column: 1 / -1; width: 100%; justify-content: center; }
-            
-            .actions .btn { padding: 10px 8px; justify-content: center; text-align: center; font-size: 0.85rem; }
-            button[onclick="openModal()"] { grid-column: 1 / -1; font-size: 1rem; padding: 12px; }
-            
-            .presets-bar { padding: 12px; border-radius: 8px; }
-            .preset-buttons { 
-                flex-wrap: nowrap; 
-                overflow-x: auto; 
-                padding-bottom: 8px; 
-                -webkit-overflow-scrolling: touch; 
-            }
-            .preset-buttons::-webkit-scrollbar { height: 4px; }
-            .preset-buttons::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-            .content-grid { grid-template-columns: 1fr; gap: 16px; }
-            
-            .card-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .card-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-            .card-actions .btn-icon { width: 100%; padding: 10px; }
-
-            .modal { padding: 16px; width: 95%; max-height: 90vh; }
-            .form-row, .form-row-3 { grid-template-columns: 1fr; gap: 12px; }
-            .form-group { margin-bottom: 12px; }
-            
-            .img-input-methods { flex-direction: column; align-items: stretch; }
-            .url-input-group { flex-direction: column; }
-            .url-input-group button { width: 100%; }
-            
-            .attr-row { flex-direction: column; gap: 6px; margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; }
-            .attr-row button { align-self: stretch; width: 100%; margin-top: 4px; }
-            
-            .stats-grid { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -464,7 +399,7 @@
                 </div>
             </div>
             <div class="actions">
-                <!-- Formulário de Email e Password com botão de Recuperar -->
+                <!-- Adicionado: Formulário de Email e Password com botão de Recuperar -->
                 <div id="auth-container" style="display: flex; gap: 8px; align-items: center;">
                     <input type="email" id="emailInput" placeholder="Email" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 150px; font-size: 0.9rem;">
                     <input type="password" id="passwordInput" placeholder="Password" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 120px; font-size: 0.9rem;">
@@ -484,13 +419,13 @@
                     <i data-lucide="pie-chart"></i> Análise
                 </button>
                 <button class="btn btn-outline" onclick="triggerImport()">
-                    <i data-lucide="upload"></i> Import XML
+                    <i data-lucide="upload"></i> Importar XML
                 </button>
                 <button class="btn btn-outline" onclick="exportXML()">
-                    <i data-lucide="download"></i> Export XML
+                    <i data-lucide="download"></i> Exportar XML
                 </button>
                 <button class="btn btn-success" onclick="exportCSV()">
-                    <i data-lucide="file-spreadsheet"></i> Export CSV
+                    <i data-lucide="file-spreadsheet"></i> Exportar CSV
                 </button>
                 <button class="btn btn-primary" onclick="openModal()">
                     <i data-lucide="plus"></i> Novo Item
@@ -510,7 +445,7 @@
                 <button class="preset-chip" onclick="filterCategory('Automóveis')"><i data-lucide="car"></i> Automóveis</button>
                 <button class="preset-chip" onclick="filterCategory('Moedas')"><i data-lucide="coins"></i> Moedas</button>
                 <button class="preset-chip" onclick="filterCategory('Joias e metais preciosos')"><i data-lucide="gem"></i> Joias & Metais</button>
-                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Fin.</button>
+                <button class="preset-chip" onclick="filterCategory('Ativos financeiros')"><i data-lucide="trending-up"></i> Ativos Financeiros</button>
                 <button class="preset-chip" onclick="filterCategory('Outros')"><i data-lucide="box"></i> Outros</button>
             </div>
         </div>
@@ -525,11 +460,11 @@
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
-    <!-- Modal Novo Item -->
+    <!-- Modais (Novo Item, Analytics) mantidos iguaizinhos -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Adicionar Item</h2>
+                <h2 id="modalTitle">Adicionar Item ao Património</h2>
                 <button class="close-modal" type="button" onclick="closeModal()">&times;</button>
             </div>
             <form id="itemForm" onsubmit="saveItem(event)">
@@ -538,7 +473,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="itemTitle">Título / Nome *</label>
-                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro">
+                        <input type="text" id="itemTitle" required placeholder="Ex: T2 no Centro / Ações Apple / Trator John Deere">
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Categoria *</label>
@@ -581,7 +516,7 @@
                         <div class="img-input-methods">
                             <input type="file" id="itemLocalImages" accept="image/*" multiple onchange="handleMultipleFiles(event)" style="display: none;">
                             <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="document.getElementById('itemLocalImages').click()">
-                                <i data-lucide="image-plus" style="width: 16px;"></i> Carregar Fotos do PC/Tel
+                                <i data-lucide="image-plus" style="width: 16px;"></i> Carregar Fotos do PC
                             </button>
                             <div class="url-input-group">
                                 <input type="url" id="itemImageUrlInput" placeholder="https://exemplo.com/foto.jpg" style="font-size: 0.85rem; padding: 6px 10px;">
@@ -594,13 +529,13 @@
 
                 <div class="form-group">
                     <label for="itemDescription">Descrição / Notas</label>
-                    <textarea id="itemDescription" rows="3" placeholder="Notas adicionais, estado, localização exata..."></textarea>
+                    <textarea id="itemDescription" rows="2" placeholder="Notas adicionais, estado, localização exata..."></textarea>
                 </div>
 
                 <div class="attributes-section">
                     <h4 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        Atributos Específicos
-                        <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Campo</button>
+                        Atributos Específicos da Categoria
+                        <button type="button" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="addAttrRow()">+ Adicionar Campo</button>
                     </h4>
                     <div id="attributesContainer"></div>
                 </div>
@@ -613,11 +548,10 @@
         </div>
     </div>
 
-    <!-- Modal Analytics -->
     <div class="modal-overlay" id="analyticsModal">
         <div class="modal modal-large">
             <div class="modal-header">
-                <h2>Análise Financeira</h2>
+                <h2>Análise Financeira do Património</h2>
                 <button class="close-modal" type="button" onclick="closeAnalyticsModal()">&times;</button>
             </div>
             
@@ -642,7 +576,7 @@
             </div>
 
             <div class="analysis-section">
-                <h3><i data-lucide="droplet" style="width: 18px;"></i> Perfil de Liquidez</h3>
+                <h3><i data-lucide="droplet" style="width: 18px;"></i> Perfil de Liquidez dos Ativos</h3>
                 <div class="progress-list" id="liquidityAnalyticsList"></div>
             </div>
 
@@ -652,7 +586,7 @@
         </div>
     </div>
 
-    <!-- Modal para visualizar Item Partilhado -->
+    <!-- Adicionado: Modal para visualizar Item Partilhado -->
     <div class="modal-overlay" id="shareModal">
         <div class="modal">
             <div class="modal-header">
@@ -676,7 +610,7 @@
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword,     
             sendEmailVerification,
-            sendPasswordResetEmail          
+            sendPasswordResetEmail          // Adicionado
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
@@ -762,7 +696,7 @@
             });
         }
 
-        // Auth Monitor
+        // Auth Monitor Atualizado
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btnLogin = document.getElementById('btn-login');
@@ -784,6 +718,7 @@
                     console.error("Erro no Firestore:", err);
                 });
             } else if (user && !user.emailVerified) {
+                // Se não verificou o email (só aplicável para criação de conta por email)
                 if(user.providerData.some(p => p.providerId === 'password')) {
                     signOut(auth);
                     alert("Por favor, verifique o seu email (caixa de entrada ou spam) antes de iniciar sessão.");
@@ -798,7 +733,7 @@
             }
         });
 
-        // Funções de Auth Email/Password
+        // --- Novas Funções de Auth (Email/Password) ---
         window.registerEmail = async () => {
             const email = document.getElementById('emailInput').value;
             const password = document.getElementById('passwordInput').value;
@@ -958,7 +893,8 @@
                                     ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
                                 </div>
                                 <div class="card-actions">
-                                    <button class="btn-icon" type="button" onclick="shareItem('${safeId}')" title="Gerar Imagem de Partilha"><i data-lucide="share-2"></i></button>
+                                    <!-- Botão de partilha adicionado -->
+                                    <button class="btn-icon" type="button" onclick="shareItem('${safeId}')" title="Partilhar"><i data-lucide="share-2"></i></button>
                                     <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
                                     <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
                                 </div>
@@ -971,109 +907,18 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        // Função de conversão Auxiliar
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
-            return new Blob([ab], {type: mimeString});
-        }
-
-        // NOVO: Gerar Imagem para Partilha
-        window.shareItem = async function(id) {
-            const item = catalog.find(i => String(i.id) === String(id));
-            if(!item) return alert("Item não encontrado.");
-
-            document.body.style.cursor = 'wait'; // Feedback visual
-
-            const container = document.createElement('div');
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            container.style.width = '800px';
-            container.style.backgroundColor = '#ffffff';
-            container.style.padding = '40px';
-            container.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-            container.style.color = '#0f172a';
-            
-            let imgs = item.images || [];
-            if (imgs.length === 0 && item.image) imgs = [item.image];
-            
-            let imagesHtml = '<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">';
-            imgs.forEach(img => {
-                imagesHtml += `<img src="${escapeHtml(img)}" crossorigin="anonymous" style="max-width: 350px; max-height: 250px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">`;
+        // --- Adicionado: Função de Partilha de Link ---
+        window.shareItem = function(id) {
+            if(!currentUser) return;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?shareUser=${currentUser.uid}&shareItem=${id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("O link foi copiado!\nQualquer pessoa que abra este link verá os detalhes do item.");
+            }).catch(err => {
+                alert("Erro ao copiar. Segue o link:\n" + shareUrl);
             });
-            imagesHtml += '</div>';
-
-            const attrsHtml = Object.entries(item.attrs || {})
-                .map(([key, val]) => `<p style="margin-bottom:8px; font-size: 16px;"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</p>`)
-                .join('');
-
-            container.innerHTML = `
-                <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 20px;">
-                    <h2 style="color: #2563eb; margin: 0 0 10px 0; font-size: 28px;">${escapeHtml(item.title)}</h2>
-                    <span style="background: #e0e7ff; color: #3730a3; padding: 4px 12px; border-radius: 16px; font-weight: bold; font-size: 14px;">${escapeHtml(item.category)}</span>
-                </div>
-                ${imagesHtml}
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px;">
-                        <h3 style="margin-top: 0; color: #475569;">Detalhes Principais</h3>
-                        <p style="margin-bottom:8px; font-size: 18px;"><strong>Preço:</strong> €${parseFloat(item.price||0).toLocaleString('pt-PT', {minimumFractionDigits: 2})}</p>
-                        <p style="margin-bottom:8px; font-size: 16px;"><strong>Quantidade:</strong> ${escapeHtml(item.quantity)}</p>
-                        <p style="margin-bottom:8px; font-size: 16px;"><strong>Liquidez:</strong> ${escapeHtml(item.liquidity || 'Média')}</p>
-                        <p style="margin-bottom:8px; font-size: 16px;"><strong>Descrição:</strong> ${escapeHtml(item.description || 'N/A')}</p>
-                    </div>
-                    ${attrsHtml ? `<div style="background: #f8fafc; padding: 20px; border-radius: 12px;"><h3 style="margin-top: 0; color: #475569;">Atributos</h3>${attrsHtml}</div>` : ''}
-                </div>
-                <div style="margin-top: 30px; text-align: center; color: #94a3b8; font-size: 14px; font-weight: bold;">
-                    Gerado via Gestor de Património
-                </div>
-            `;
-            
-            document.body.appendChild(container);
-
-            try {
-                const imgElements = container.querySelectorAll('img');
-                await Promise.all(Array.from(imgElements).map(img => {
-                    if (img.complete) return Promise.resolve();
-                    return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-                }));
-
-                const canvas = await html2canvas(container, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
-                const imgData = canvas.toDataURL('image/png');
-                const filename = `partilha-${item.title.replace(/\s+/g, '-').toLowerCase()}.png`;
-
-                try {
-                    const blob = dataURItoBlob(imgData);
-                    const file = new File([blob], filename, { type: 'image/png' });
-                    
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: item.title,
-                            text: 'Confira os detalhes de: ' + item.title,
-                            files: [file]
-                        });
-                    } else {
-                        throw new Error('Web Share API não suportada');
-                    }
-                } catch (e) {
-                    const link = document.createElement('a');
-                    link.download = filename;
-                    link.href = imgData;
-                    link.click();
-                }
-            } catch (err) {
-                console.error("Erro ao gerar imagem:", err);
-                alert("Ocorreu um erro ao gerar a imagem de partilha.");
-            } finally {
-                document.body.removeChild(container);
-                document.body.style.cursor = 'default';
-            }
         };
 
-        // Intercetação do Link de Partilha (mantido intacto apenas por segurança para os links antigos já gerados)
+        // Intercetação do Link de Partilha na Abertura da Página
         window.addEventListener('DOMContentLoaded', async () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
@@ -1120,7 +965,7 @@
             }
         });
 
-        // Demais Funções de Lógica e CRUD
+        // Funções Originais restantes
         window.navigateCardImage = function(itemId, direction, event) {
             if (event) event.stopPropagation();
             const item = catalog.find(i => String(i.id) === String(itemId));
@@ -1189,7 +1034,7 @@
             if (editId) {
                 const item = catalog.find(i => String(i.id) === String(editId));
                 if (item) {
-                    document.getElementById('modalTitle').textContent = 'Editar Item';
+                    document.getElementById('modalTitle').textContent = 'Editar Item do Património';
                     document.getElementById('itemId').value = item.id;
                     document.getElementById('itemTitle').value = item.title;
                     document.getElementById('itemCategory').value = item.category;
@@ -1203,7 +1048,7 @@
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
                 }
             } else {
-                document.getElementById('modalTitle').textContent = 'Adicionar Item';
+                document.getElementById('modalTitle').textContent = 'Adicionar Item ao Património';
                 document.getElementById('itemId').value = '';
                 handleCategoryChange();
             }
@@ -1230,10 +1075,9 @@
             row.innerHTML = `
                 <input type="text" placeholder="Atributo (ex: Tipologia)" class="attr-key" value="${escapeHtml(key)}">
                 <input type="text" placeholder="Valor (ex: T3 / 100m²)" class="attr-value" value="${escapeHtml(val)}">
-                <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()"><i data-lucide="trash"></i> Eliminar</button>
+                <button type="button" class="btn-icon delete-btn" onclick="this.parentElement.remove()">&times;</button>
             `;
             container.appendChild(row);
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
         window.saveItem = async function(e) {
@@ -1328,9 +1172,9 @@
 
             const liqContainer = document.getElementById('liquidityAnalyticsList');
             const liqLevels = [
-                { key: 'Alta', label: 'Alta (Dinheiro/Ações)', fillClass: 'fill-green' },
-                { key: 'Média', label: 'Média (Veículos/Máquinas)', fillClass: 'fill-yellow' },
-                { key: 'Baixa', label: 'Baixa (Imóveis/Terrenos)', fillClass: 'fill-red' }
+                { key: 'Alta', label: 'Alta (Dinheiro / Ações / Metais)', fillClass: 'fill-green' },
+                { key: 'Média', label: 'Média (Veículos / Máquinas / Móveis)', fillClass: 'fill-yellow' },
+                { key: 'Baixa', label: 'Baixa (Imóveis / Terrenos)', fillClass: 'fill-red' }
             ];
             liqContainer.innerHTML = liqLevels.map(l => {
                 const val = liquidityTotals[l.key] || 0;
