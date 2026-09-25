@@ -73,6 +73,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         /* Buttons */
@@ -398,14 +399,24 @@
                 </div>
             </div>
             <div class="actions">
-                <button id="btn-login" class="btn btn-primary" onclick="loginGoogle()">
-                    <i data-lucide="log-in"></i> Entrar com Google
+                <!-- Adicionado: Formulário de Email e Password com botão de Recuperar -->
+                <div id="auth-container" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="email" id="emailInput" placeholder="Email" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 150px; font-size: 0.9rem;">
+                    <input type="password" id="passwordInput" placeholder="Password" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); width: 120px; font-size: 0.9rem;">
+                    <button class="btn btn-primary" onclick="loginEmail()" style="padding: 8px 12px;"><i data-lucide="mail"></i> Entrar</button>
+                    <button class="btn btn-outline" onclick="registerEmail()" style="padding: 8px 12px;">Registar</button>
+                    <button class="btn btn-outline" onclick="resetPasswordEmail()" style="padding: 8px 12px;" title="Recuperar Password"><i data-lucide="key"></i> Recuperar</button>
+                </div>
+                
+                <button id="btn-login" class="btn btn-outline" onclick="loginGoogle()">
+                    <i data-lucide="log-in"></i> Google
                 </button>
                 <button id="btn-logout" class="btn btn-outline" onclick="logoutGoogle()" style="display: none;">
                     <i data-lucide="log-out"></i> Sair
                 </button>
+                
                 <button class="btn btn-analytics" onclick="openAnalyticsModal()">
-                    <i data-lucide="pie-chart"></i> Análise Financeira
+                    <i data-lucide="pie-chart"></i> Análise
                 </button>
                 <button class="btn btn-outline" onclick="triggerImport()">
                     <i data-lucide="upload"></i> Importar XML
@@ -449,6 +460,7 @@
         <div class="content-grid" id="catalogGrid"></div>
     </div>
 
+    <!-- Modais (Novo Item, Analytics) mantidos iguaizinhos -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal">
             <div class="modal-header">
@@ -574,6 +586,17 @@
         </div>
     </div>
 
+    <!-- Adicionado: Modal para visualizar Item Partilhado -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Item Partilhado</h2>
+                <button class="close-modal" type="button" onclick="document.getElementById('shareModal').classList.remove('active'); window.history.replaceState({}, document.title, window.location.pathname);">&times;</button>
+            </div>
+            <div id="shareContent"></div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
@@ -583,7 +606,11 @@
             signOut, 
             onAuthStateChanged,
             setPersistence,
-            browserLocalPersistence
+            browserLocalPersistence,
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,     
+            sendEmailVerification,
+            sendPasswordResetEmail          // Adicionado
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
@@ -591,7 +618,8 @@
             setDoc, 
             deleteDoc, 
             onSnapshot, 
-            collection 
+            collection,
+            getDoc                          
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Configuração do Firebase
@@ -613,10 +641,9 @@
         let unsubscribeListener = null;
 
         let selectedCategory = 'all';
-        let currentModalImages = []; // Array de imagens para o item em edição no modal
-        let cardImageIndexes = {}; // Guarda o índice da imagem atual visualizada em cada cartão
+        let currentModalImages = []; 
+        let cardImageIndexes = {}; 
 
-        // Atributos Pré-Definidos por Categoria (Inclui a nova categoria Outros)
         const categoryPresets = {
             'Imóveis Urbanos': ['Tipologia', 'Área Útil (m²)', 'Localização', 'Certificado Energético'],
             'Imóveis Rústicos': ['Área Total (ha/m²)', 'Tipo de Terreno', 'Localização', 'Artigo Rústico'],
@@ -629,7 +656,6 @@
             'Outros': ['Estado', 'Origem']
         };
 
-        // Sugestões de Liquidez por Categoria
         const categoryDefaultLiquidity = {
             'Imóveis Urbanos': 'Baixa',
             'Imóveis Rústicos': 'Baixa',
@@ -642,7 +668,6 @@
             'Outros': 'Média'
         };
 
-        // Função de Compressão de Imagens
         function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -653,25 +678,16 @@
                     img.onload = () => {
                         let width = img.width;
                         let height = img.height;
-
                         if (width > height) {
-                            if (width > maxWidth) {
-                                height = Math.round((height * maxWidth) / width);
-                                width = maxWidth;
-                            }
+                            if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
                         } else {
-                            if (height > maxHeight) {
-                                width = Math.round((width * maxHeight) / height);
-                                height = maxHeight;
-                            }
+                            if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
                         }
-
                         const canvas = document.createElement('canvas');
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-
                         resolve(canvas.toDataURL('image/jpeg', quality));
                     };
                     img.onerror = (err) => reject(err);
@@ -680,13 +696,15 @@
             });
         }
 
-        // Auth Monitor
+        // Auth Monitor Atualizado
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
+            const authContainer = document.getElementById('auth-container');
 
-            if (user) {
+            if (user && user.emailVerified) {
+                if (authContainer) authContainer.style.display = 'none';
                 if (btnLogin) btnLogin.style.display = 'none';
                 if (btnLogout) btnLogout.style.display = 'inline-flex';
 
@@ -699,7 +717,14 @@
                 }, (err) => {
                     console.error("Erro no Firestore:", err);
                 });
+            } else if (user && !user.emailVerified) {
+                // Se não verificou o email (só aplicável para criação de conta por email)
+                if(user.providerData.some(p => p.providerId === 'password')) {
+                    signOut(auth);
+                    alert("Por favor, verifique o seu email (caixa de entrada ou spam) antes de iniciar sessão.");
+                }
             } else {
+                if (authContainer) authContainer.style.display = 'flex';
                 if (btnLogin) btnLogin.style.display = 'inline-flex';
                 if (btnLogout) btnLogout.style.display = 'none';
                 catalog = [];
@@ -708,7 +733,50 @@
             }
         });
 
-        // Global Handlers
+        // --- Novas Funções de Auth (Email/Password) ---
+        window.registerEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            if(!email || !password) return alert("Preencha email e password.");
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
+                await signOut(auth);
+                alert("Conta criada com sucesso! Foi enviado um link de verificação para o seu email. Verifique-o antes de entrar.");
+            } catch(err) {
+                alert("Erro ao registar: " + err.message);
+            }
+        };
+
+        window.loginEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            if(!email || !password) return alert("Preencha email e password.");
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth);
+                    alert("Ainda não verificou o seu email. Por favor, consulte a sua caixa de entrada.");
+                }
+            } catch(err) {
+                alert("Erro ao entrar (Verifique as credenciais): " + err.message);
+            }
+        };
+
+        window.resetPasswordEmail = async () => {
+            const email = document.getElementById('emailInput').value;
+            if(!email) return alert("Por favor, preencha o campo do Email para recuperar a password.");
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Email de recuperação enviado! Verifique a sua caixa de entrada e a pasta de spam.");
+            } catch(err) {
+                alert("Erro ao enviar email de recuperação: " + err.message);
+            }
+        };
+
+        // Auth Google Original
         window.loginGoogle = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
@@ -741,7 +809,7 @@
                 grid.innerHTML = `
                     <div class="empty-state">
                         <h3>Sessão não iniciada</h3>
-                        <p>Inicie sessão com a sua conta do Google para carregar e gerir os seus itens na nuvem.</p>
+                        <p>Inicie sessão ou crie conta para carregar e gerir os seus itens na nuvem.</p>
                     </div>
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -771,7 +839,6 @@
             }
 
             grid.innerHTML = filtered.map(item => {
-                // Suporte para retrocompatibilidade: `images` array ou `image` string única
                 let itemImages = item.images || [];
                 if (itemImages.length === 0 && item.image) {
                     itemImages = [item.image];
@@ -793,7 +860,6 @@
 
                 const safeId = String(item.id).replace(/'/g, "\\'");
 
-                // Carrossel de Fotos se houver mais do que 1 foto
                 let navBtnsHtml = '';
                 let counterBadgeHtml = '';
                 if (itemImages.length > 1) {
@@ -827,6 +893,8 @@
                                     ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
                                 </div>
                                 <div class="card-actions">
+                                    <!-- Botão de partilha adicionado -->
+                                    <button class="btn-icon" type="button" onclick="shareItem('${safeId}')" title="Partilhar"><i data-lucide="share-2"></i></button>
                                     <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
                                     <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
                                 </div>
@@ -839,38 +907,88 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        // Navegação de Fotos nos Cartões
+        // --- Adicionado: Função de Partilha de Link ---
+        window.shareItem = function(id) {
+            if(!currentUser) return;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?shareUser=${currentUser.uid}&shareItem=${id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("O link foi copiado!\nQualquer pessoa que abra este link verá os detalhes do item.");
+            }).catch(err => {
+                alert("Erro ao copiar. Segue o link:\n" + shareUrl);
+            });
+        };
+
+        // Intercetação do Link de Partilha na Abertura da Página
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            const params = new URLSearchParams(window.location.search);
+            const sUser = params.get('shareUser');
+            const sItem = params.get('shareItem');
+            
+            if(sUser && sItem) {
+                try {
+                    const docRef = doc(db, "usuarios", sUser, "itens", sItem);
+                    const docSnap = await getDoc(docRef);
+                    if(docSnap.exists()) {
+                        const item = docSnap.data();
+                        
+                        let imgs = item.images || [];
+                        if (imgs.length === 0 && item.image) imgs = [item.image];
+                        const imgUrl = imgs[0] || 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                        
+                        const attrsHtml = Object.entries(item.attrs || {})
+                            .map(([key, val]) => `<p style="margin-bottom:6px;"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</p>`)
+                            .join('');
+
+                        document.getElementById('shareContent').innerHTML = `
+                            <div style="background:#f8fafc; padding:12px; border-radius:8px; text-align:center; margin-bottom:16px;">
+                                <img src="${escapeHtml(imgUrl)}" style="max-width:100%; max-height:250px; border-radius:6px; object-fit:contain;">
+                            </div>
+                            <h3 style="color:var(--primary); margin-bottom:8px;">${escapeHtml(item.title)}</h3>
+                            <div style="font-size:0.95rem;">
+                                <p style="margin-bottom:6px;"><strong>Categoria:</strong> ${escapeHtml(item.category)}</p>
+                                <p style="margin-bottom:6px;"><strong>Preço:</strong> €${parseFloat(item.price||0).toFixed(2)}</p>
+                                <p style="margin-bottom:6px;"><strong>Quantidade:</strong> ${escapeHtml(item.quantity)}</p>
+                                <p style="margin-bottom:6px;"><strong>Descrição:</strong> ${escapeHtml(item.description || 'N/A')}</p>
+                            </div>
+                            ${attrsHtml ? `<hr style="margin: 16px 0; border:none; border-top:1px solid var(--border);"><div style="font-size:0.95rem;">${attrsHtml}</div>` : ''}
+                        `;
+                        document.getElementById('shareModal').classList.add('active');
+                    } else {
+                        alert("Item partilhado não encontrado ou já foi apagado.");
+                    }
+                } catch(err) {
+                    console.error("Erro a carregar partilha:", err);
+                    alert("Erro ao carregar o item partilhado. Confirme que alterou as Regras na Consola da Firebase.");
+                }
+            }
+        });
+
+        // Funções Originais restantes
         window.navigateCardImage = function(itemId, direction, event) {
             if (event) event.stopPropagation();
             const item = catalog.find(i => String(i.id) === String(itemId));
             if (!item) return;
-
             let imgs = item.images || [];
             if (imgs.length === 0 && item.image) imgs = [item.image];
             if (imgs.length <= 1) return;
-
             let currentIdx = cardImageIndexes[itemId] || 0;
             currentIdx += direction;
-
             if (currentIdx < 0) currentIdx = imgs.length - 1;
             if (currentIdx >= imgs.length) currentIdx = 0;
-
             cardImageIndexes[itemId] = currentIdx;
             renderItems();
         };
 
-        // Handlers de Múltiplas Fotos no Modal Form
         window.handleMultipleFiles = async function(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
-
             for (let file of files) {
                 try {
                     const compressed = await compressImage(file);
                     currentModalImages.push(compressed);
-                } catch (err) {
-                    console.error("Erro ao comprimir imagem:", err);
-                }
+                } catch (err) { console.error("Erro ao comprimir:", err); }
             }
             event.target.value = '';
             renderImagesPreview();
@@ -894,12 +1012,10 @@
         function renderImagesPreview() {
             const container = document.getElementById('imagesPreviewContainer');
             if (!container) return;
-
             if (currentModalImages.length === 0) {
                 container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); grid-column: 1/-1;">Nenhuma foto adicionada.</span>';
                 return;
             }
-
             container.innerHTML = currentModalImages.map((src, idx) => `
                 <div class="img-preview-thumb">
                     <img src="${escapeHtml(src)}" alt="Miniatura ${idx + 1}" onerror="this.src='https://via.placeholder.com/100?text=Erro'">
@@ -927,12 +1043,8 @@
                     document.getElementById('itemLiquidity').value = item.liquidity || 'Média';
                     document.getElementById('itemDescription').value = item.description || '';
 
-                    if (item.images && item.images.length > 0) {
-                        currentModalImages = [...item.images];
-                    } else if (item.image) {
-                        currentModalImages = [item.image];
-                    }
-
+                    if (item.images && item.images.length > 0) { currentModalImages = [...item.images]; } 
+                    else if (item.image) { currentModalImages = [item.image]; }
                     Object.entries(item.attrs || {}).forEach(([k, v]) => addAttrRow(k, v));
                 }
             } else {
@@ -940,25 +1052,16 @@
                 document.getElementById('itemId').value = '';
                 handleCategoryChange();
             }
-
             renderImagesPreview();
             modal.classList.add('active');
         };
 
-        window.closeModal = function() {
-            document.getElementById('itemModal').classList.remove('active');
-        };
+        window.closeModal = function() { document.getElementById('itemModal').classList.remove('active'); };
 
         window.handleCategoryChange = function() {
             const cat = document.getElementById('itemCategory').value;
-            
             if (!document.getElementById('itemId').value) {
-                // Sugere a liquidez habitual da categoria
-                if (categoryDefaultLiquidity[cat]) {
-                    document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
-                }
-
-                // Carrega os atributos pré-definidos da categoria
+                if (categoryDefaultLiquidity[cat]) document.getElementById('itemLiquidity').value = categoryDefaultLiquidity[cat];
                 const container = document.getElementById('attributesContainer');
                 container.innerHTML = '';
                 (categoryPresets[cat] || []).forEach(attrName => addAttrRow(attrName, ''));
@@ -979,11 +1082,7 @@
 
         window.saveItem = async function(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert("Sessão não detetada. Por favor, volte a iniciar sessão.");
-                return;
-            }
-
+            if (!currentUser) return alert("Sessão não detetada. Por favor, volte a iniciar sessão.");
             const btnSave = document.getElementById('btnSaveSubmit');
             btnSave.disabled = true;
             btnSave.textContent = 'A guardar...';
@@ -996,11 +1095,10 @@
                 const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
                 const liquidity = document.getElementById('itemLiquidity').value || 'Média';
                 const description = document.getElementById('itemDescription').value || '';
-
                 const images = [...currentModalImages];
                 const primaryImage = images[0] || '';
-
                 const attrs = {};
+                
                 const keys = document.querySelectorAll('.attr-key');
                 const vals = document.querySelectorAll('.attr-value');
                 keys.forEach((kInput, index) => {
@@ -1009,33 +1107,17 @@
                     if (k) attrs[k] = v;
                 });
 
-                const newItem = { 
-                    id, 
-                    title, 
-                    category, 
-                    price, 
-                    quantity, 
-                    liquidity, 
-                    images, 
-                    image: primaryImage, // Mantido para compatibilidade
-                    description, 
-                    attrs 
-                };
-
+                const newItem = { id, title, category, price, quantity, liquidity, images, image: primaryImage, description, attrs };
                 const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                 await setDoc(docRef, newItem);
 
                 selectedCategory = 'all';
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) searchInput.value = '';
-                
-                document.querySelectorAll('.preset-chip').forEach(btn => {
-                    btn.classList.toggle('active', btn.textContent.includes('Todos'));
-                });
+                document.querySelectorAll('.preset-chip').forEach(btn => btn.classList.toggle('active', btn.textContent.includes('Todos')));
 
                 const existingIdx = catalog.findIndex(i => String(i.id) === String(id));
-                if (existingIdx >= 0) catalog[existingIdx] = newItem;
-                else catalog.push(newItem);
+                if (existingIdx >= 0) catalog[existingIdx] = newItem; else catalog.push(newItem);
                 
                 renderItems();
                 closeModal();
@@ -1056,106 +1138,60 @@
                 try {
                     const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
                     await deleteDoc(docRef);
-                } catch (err) {
-                    alert("Erro ao eliminar o item: " + err.message);
-                }
+                } catch (err) { alert("Erro ao eliminar o item: " + err.message); }
             }
         };
 
-        // --- Ferramenta de Análise Financeira & Liquidez ---
         window.openAnalyticsModal = function() {
             const modal = document.getElementById('analyticsModal');
-            
-            let totalPortfolioValue = 0;
-            let totalItemsCount = 0;
-            const categoryTotals = {};
-            const categoryCounts = {};
-            const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+            let totalPortfolioValue = 0; let totalItemsCount = 0;
+            const categoryTotals = {}; const categoryCounts = {}; const liquidityTotals = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
 
             catalog.forEach(item => {
                 const qty = parseInt(item.quantity) || 1;
                 const price = parseFloat(item.price) || 0;
                 const itemTotal = price * qty;
-
-                totalPortfolioValue += itemTotal;
-                totalItemsCount += qty;
-
-                // Categoria
+                totalPortfolioValue += itemTotal; totalItemsCount += qty;
                 categoryTotals[item.category] = (categoryTotals[item.category] || 0) + itemTotal;
                 categoryCounts[item.category] = (categoryCounts[item.category] || 0) + qty;
-
-                // Liquidez
                 const liq = item.liquidity || 'Média';
                 liquidityTotals[liq] = (liquidityTotals[liq] || 0) + itemTotal;
             });
 
-            // Atualiza Cards de Resumo
             document.getElementById('statTotalValue').textContent = `€ ${totalPortfolioValue.toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('statTotalItems').textContent = totalItemsCount;
             document.getElementById('statHighLiquidity').textContent = `€ ${liquidityTotals['Alta'].toLocaleString('pt-PT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-            // Renderiza Análise por Categoria
             const catContainer = document.getElementById('categoryAnalyticsList');
             const categories = Object.keys(categoryPresets);
-            
             catContainer.innerHTML = categories.map(cat => {
-                const val = categoryTotals[cat] || 0;
-                const qty = categoryCounts[cat] || 0;
+                const val = categoryTotals[cat] || 0; const qty = categoryCounts[cat] || 0;
                 const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${cat} (${qty} un)</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill fill-primary" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
+                return `<div class="progress-item"><div class="progress-info"><span>${cat} (${qty} un)</span><span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span></div><div class="progress-bg"><div class="progress-fill fill-primary" style="width: ${pct}%;"></div></div></div>`;
             }).join('');
 
-            // Renderiza Análise de Liquidez
             const liqContainer = document.getElementById('liquidityAnalyticsList');
             const liqLevels = [
                 { key: 'Alta', label: 'Alta (Dinheiro / Ações / Metais)', fillClass: 'fill-green' },
                 { key: 'Média', label: 'Média (Veículos / Máquinas / Móveis)', fillClass: 'fill-yellow' },
                 { key: 'Baixa', label: 'Baixa (Imóveis / Terrenos)', fillClass: 'fill-red' }
             ];
-
             liqContainer.innerHTML = liqLevels.map(l => {
                 const val = liquidityTotals[l.key] || 0;
                 const pct = totalPortfolioValue > 0 ? ((val / totalPortfolioValue) * 100).toFixed(1) : 0;
-
-                return `
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>${l.label}</span>
-                            <span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
+                return `<div class="progress-item"><div class="progress-info"><span>${l.label}</span><span>€ ${val.toLocaleString('pt-PT', {minimumFractionDigits: 2})} — <strong>${pct}%</strong></span></div><div class="progress-bg"><div class="progress-fill ${l.fillClass}" style="width: ${pct}%;"></div></div></div>`;
             }).join('');
 
             modal.classList.add('active');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
 
-        window.closeAnalyticsModal = function() {
-            document.getElementById('analyticsModal').classList.remove('active');
-        };
+        window.closeAnalyticsModal = function() { document.getElementById('analyticsModal').classList.remove('active'); };
 
-        // Export/Import
         window.exportXML = function() {
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
             catalog.forEach(item => {
-                let imgs = item.images || [];
-                if (imgs.length === 0 && item.image) imgs = [item.image];
-
+                let imgs = item.images || []; if (imgs.length === 0 && item.image) imgs = [item.image];
                 xml += '  <item>\n';
                 xml += `    <id>${escapeXml(item.id)}</id>\n`;
                 xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
@@ -1164,21 +1200,12 @@
                 xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
                 xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
                 xml += `    <imagem>${escapeXml(item.image || (imgs[0] || ''))}</imagem>\n`;
-                xml += '    <imagens>\n';
-                imgs.forEach(img => {
-                    xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`;
-                });
-                xml += '    </imagens>\n';
+                xml += '    <imagens>\n'; imgs.forEach(img => xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`); xml += '    </imagens>\n';
                 xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
-                xml += '    <atributos>\n';
-                Object.entries(item.attrs || {}).forEach(([k, v]) => {
-                    xml += `      <atributo nome="${escapeXml(k)}">${escapeXml(v)}</atributo>\n`;
-                });
-                xml += '    </atributos>\n';
+                xml += '    <atributos>\n'; Object.entries(item.attrs || {}).forEach(([k, v]) => xml += `      <atributo nome="${escapeXml(k)}">${escapeXml(v)}</atributo>\n`); xml += '    </atributos>\n';
                 xml += '  </item>\n';
             });
             xml += '</patrimonio>';
-
             downloadFile(xml, 'patrimonio.xml', 'application/xml');
         };
 
@@ -1186,147 +1213,67 @@
             const allAttrKeys = new Set();
             catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
             const attrKeysArr = Array.from(allAttrKeys);
-
             let headers = ['ID', 'Título', 'Categoria', 'Preço Unitário', 'Quantidade', 'Valor Total', 'Liquidez', 'Fotos (URLs/Base64)', 'Descrição', ...attrKeysArr];
-            let csvRows = [];
-            csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';'));
-
+            let csvRows = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';')];
             catalog.forEach(item => {
-                const qty = parseInt(item.quantity) || 1;
-                const price = parseFloat(item.price) || 0;
-                let imgs = item.images || [];
-                if (imgs.length === 0 && item.image) imgs = [item.image];
-
-                let row = [
-                    item.id,
-                    item.title,
-                    item.category,
-                    price,
-                    qty,
-                    price * qty,
-                    item.liquidity || 'Média',
-                    imgs.join(' | '),
-                    item.description,
-                    ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')
-                ];
+                const qty = parseInt(item.quantity) || 1; const price = parseFloat(item.price) || 0;
+                let imgs = item.images || []; if (imgs.length === 0 && item.image) imgs = [item.image];
+                let row = [item.id, item.title, item.category, price, qty, price * qty, item.liquidity || 'Média', imgs.join(' | '), item.description, ...attrKeysArr.map(k => (item.attrs && item.attrs[k]) ? item.attrs[k] : '')];
                 csvRows.push(row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(';'));
             });
-
-            const csvContent = '\uFEFF' + csvRows.join('\n');
-            downloadFile(csvContent, 'patrimonio.csv', 'text/csv;charset=utf-8;');
+            downloadFile('\uFEFF' + csvRows.join('\n'), 'patrimonio.csv', 'text/csv;charset=utf-8;');
         };
 
         window.triggerImport = function() { document.getElementById('fileInput').click(); };
 
         window.importXML = function(event) {
-            if (!currentUser) {
-                alert("Entre com a sua conta do Google para importar para a nuvem.");
-                return;
-            }
-
+            if (!currentUser) return alert("Entre na sua conta para importar para a nuvem.");
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
                     const items = xmlDoc.getElementsByTagName("item");
-
                     for (let i = 0; i < items.length; i++) {
                         const el = items[i];
                         const id = getXmlText(el, "id") || Date.now().toString() + i;
-                        const title = getXmlText(el, "titulo") || 'Sem Título';
-                        const category = getXmlText(el, "categoria") || 'Outros';
-                        const price = parseFloat(getXmlText(el, "preco")) || 0;
-                        const quantity = parseInt(getXmlText(el, "quantidade")) || 1;
-                        const liquidity = getXmlText(el, "liquidez") || 'Média';
                         const singleImg = getXmlText(el, "imagem") || '';
-                        const description = getXmlText(el, "descricao") || '';
-
                         const images = [];
-                        const imgNodes = el.querySelectorAll("imagens > imagem_url");
-                        imgNodes.forEach(node => {
-                            if (node.textContent) images.push(node.textContent);
-                        });
-                        if (images.length === 0 && singleImg) {
-                            images.push(singleImg);
-                        }
-
+                        el.querySelectorAll("imagens > imagem_url").forEach(node => { if (node.textContent) images.push(node.textContent); });
+                        if (images.length === 0 && singleImg) images.push(singleImg);
                         const attrs = {};
-                        const attrNodes = el.querySelectorAll("atributo");
-                        attrNodes.forEach(node => {
-                            const key = node.getAttribute("nome");
-                            const val = node.textContent;
-                            if (key) attrs[key] = val;
-                        });
+                        el.querySelectorAll("atributo").forEach(node => { const key = node.getAttribute("nome"); if (key) attrs[key] = node.textContent; });
 
                         const importedItem = { 
                             id, 
-                            title, 
-                            category, 
-                            price, 
-                            quantity, 
-                            liquidity, 
-                            images, 
-                            image: images[0] || '', 
-                            description, 
+                            title: getXmlText(el, "titulo") || 'Sem Título', 
+                            category: getXmlText(el, "categoria") || 'Outros', 
+                            price: parseFloat(getXmlText(el, "preco")) || 0, 
+                            quantity: parseInt(getXmlText(el, "quantidade")) || 1, 
+                            liquidity: getXmlText(el, "liquidez") || 'Média', 
+                            images, image: images[0] || '', 
+                            description: getXmlText(el, "descricao") || '', 
                             attrs 
                         };
-                        
-                        const docRef = doc(db, "usuarios", currentUser.uid, "itens", String(id));
-                        await setDoc(docRef, importedItem);
+                        await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), importedItem);
                     }
-
                     alert(`${items.length} itens importados com sucesso!`);
-                } catch (err) {
-                    alert('Erro ao processar ficheiro XML.');
-                }
+                } catch (err) { alert('Erro ao processar ficheiro XML.'); }
             };
             reader.readAsText(file);
             event.target.value = '';
         };
 
-        function getXmlText(parent, tagName) {
-            const node = parent.getElementsByTagName(tagName)[0];
-            return node ? node.textContent : '';
-        }
-
-        function escapeXml(str) {
-            return String(str || '').replace(/[<>&'"]/g, c => {
-                switch (c) {
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '&': return '&amp;';
-                    case "'": return '&apos;';
-                    case '"': return '&quot;';
-                }
-            });
-        }
-
-        function escapeHtml(str) {
-            return String(str || '').replace(/[&<>"']/g, match => {
-                const masks = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-                return masks[match];
-            });
-        }
-
+        function getXmlText(parent, tagName) { const node = parent.getElementsByTagName(tagName)[0]; return node ? node.textContent : ''; }
+        function escapeXml(str) { return String(str || '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c])); }
+        function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match])); }
         function downloadFile(content, fileName, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const blob = new Blob([content], { type: mimeType }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = fileName;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
     </script>
 </body>
 </html>
