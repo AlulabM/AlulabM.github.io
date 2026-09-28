@@ -432,7 +432,7 @@
             .content-grid { grid-template-columns: 1fr; gap: 16px; }
             
             .card-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .card-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+            .card-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
             .card-actions .btn-icon { width: 100%; padding: 10px; }
 
             .modal { padding: 16px; width: 95%; max-height: 90vh; }
@@ -481,19 +481,12 @@
                 <button class="btn btn-analytics" onclick="openAnalyticsModal()">
                     <i data-lucide="pie-chart"></i> Análise
                 </button>
-                <button class="btn btn-outline" onclick="triggerImport()">
-                    <i data-lucide="upload"></i> Import XML
-                </button>
-                <button class="btn btn-outline" onclick="exportXML()">
-                    <i data-lucide="download"></i> Export XML
-                </button>
                 <button class="btn btn-success" onclick="exportCSV()">
                     <i data-lucide="file-spreadsheet"></i> Export CSV
                 </button>
                 <button class="btn btn-primary" onclick="openModal()">
                     <i data-lucide="plus"></i> Novo Item
                 </button>
-                <input type="file" id="fileInput" accept=".xml" onchange="importXML(event)">
             </div>
         </header>
 
@@ -956,7 +949,6 @@
                                     ${quantity > 1 ? `<span class="card-unit-price">€ ${unitPrice.toLocaleString('pt-PT', {minimumFractionDigits: 2})} / un</span>` : ''}
                                 </div>
                                 <div class="card-actions">
-                                    <button class="btn-icon" type="button" onclick="shareItem('${safeId}')" title="Partilhar"><i data-lucide="share-2"></i></button>
                                     <button class="btn-icon" type="button" onclick="editItem('${safeId}')" title="Editar"><i data-lucide="edit-2"></i></button>
                                     <button class="btn-icon delete-btn" type="button" onclick="deleteItem('${safeId}')" title="Eliminar"><i data-lucide="trash-2"></i></button>
                                 </div>
@@ -1251,27 +1243,6 @@
 
         window.closeAnalyticsModal = function() { document.getElementById('analyticsModal').classList.remove('active'); };
 
-        window.exportXML = function() {
-            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<patrimonio>\n';
-            catalog.forEach(item => {
-                let imgs = item.images || []; if (imgs.length === 0 && item.image) imgs = [item.image];
-                xml += '  <item>\n';
-                xml += `    <id>${escapeXml(item.id)}</id>\n`;
-                xml += `    <titulo>${escapeXml(item.title)}</titulo>\n`;
-                xml += `    <categoria>${escapeXml(item.category)}</categoria>\n`;
-                xml += `    <preco>${item.price}</preco>\n`;
-                xml += `    <quantidade>${item.quantity || 1}</quantidade>\n`;
-                xml += `    <liquidez>${escapeXml(item.liquidity || 'Média')}</liquidez>\n`;
-                xml += `    <imagem>${escapeXml(item.image || (imgs[0] || ''))}</imagem>\n`;
-                xml += '    <imagens>\n'; imgs.forEach(img => xml += `      <imagem_url>${escapeXml(img)}</imagem_url>\n`); xml += '    </imagens>\n';
-                xml += `    <descricao>${escapeXml(item.description)}</descricao>\n`;
-                xml += '    <atributos>\n'; Object.entries(item.attrs || {}).forEach(([k, v]) => xml += `      <atributo nome="${escapeXml(k)}">${escapeXml(v)}</atributo>\n`); xml += '    </atributos>\n';
-                xml += '  </item>\n';
-            });
-            xml += '</patrimonio>';
-            downloadFile(xml, 'patrimonio.xml', 'application/xml');
-        };
-
         window.exportCSV = function() {
             const allAttrKeys = new Set();
             catalog.forEach(item => Object.keys(item.attrs || {}).forEach(k => allAttrKeys.add(k)));
@@ -1287,50 +1258,6 @@
             downloadFile('\uFEFF' + csvRows.join('\n'), 'patrimonio.csv', 'text/csv;charset=utf-8;');
         };
 
-        window.triggerImport = function() { document.getElementById('fileInput').click(); };
-
-        window.importXML = function(event) {
-            if (!currentUser) return alert("Entre na sua conta para importar para a nuvem.");
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
-                    const items = xmlDoc.getElementsByTagName("item");
-                    for (let i = 0; i < items.length; i++) {
-                        const el = items[i];
-                        const id = getXmlText(el, "id") || Date.now().toString() + i;
-                        const singleImg = getXmlText(el, "imagem") || '';
-                        const images = [];
-                        el.querySelectorAll("imagens > imagem_url").forEach(node => { if (node.textContent) images.push(node.textContent); });
-                        if (images.length === 0 && singleImg) images.push(singleImg);
-                        const attrs = {};
-                        el.querySelectorAll("atributo").forEach(node => { const key = node.getAttribute("nome"); if (key) attrs[key] = node.textContent; });
-
-                        const importedItem = { 
-                            id, 
-                            title: getXmlText(el, "titulo") || 'Sem Título', 
-                            category: getXmlText(el, "categoria") || 'Outros', 
-                            price: parseFloat(getXmlText(el, "preco")) || 0, 
-                            quantity: parseInt(getXmlText(el, "quantidade")) || 1, 
-                            liquidity: getXmlText(el, "liquidez") || 'Média', 
-                            images, image: images[0] || '', 
-                            description: getXmlText(el, "descricao") || '', 
-                            attrs 
-                        };
-                        await setDoc(doc(db, "usuarios", currentUser.uid, "itens", String(id)), importedItem);
-                    }
-                    alert(`${items.length} itens importados com sucesso!`);
-                } catch (err) { alert('Erro ao processar ficheiro XML.'); }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        };
-
-        function getXmlText(parent, tagName) { const node = parent.getElementsByTagName(tagName)[0]; return node ? node.textContent : ''; }
-        function escapeXml(str) { return String(str || '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c])); }
         function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match])); }
         function downloadFile(content, fileName, mimeType) {
             const blob = new Blob([content], { type: mimeType }); const url = URL.createObjectURL(blob);
